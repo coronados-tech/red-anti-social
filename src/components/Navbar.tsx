@@ -1,16 +1,16 @@
-import { Link, NavLink } from 'react-router-dom';
-import { Container, Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
-import { useAuth } from '../context/AuthContext';
-import ThemeToggle from './ThemeToggle';
-import ProfileAvatar from './ProfileAvatar';
-import UserSearch from './UserSearch';
-import { userProfilePath } from '../utils/userProfile';
+import { Link, NavLink } from "react-router-dom";
+import { Container, Navbar, Nav, NavDropdown, Button } from "react-bootstrap";
+import { useAuth } from "../context/AuthContext";
+import ThemeToggle from "./ThemeToggle";
+import ProfileAvatar from "./ProfileAvatar";
+import UserSearch from "./UserSearch";
+import { userProfilePath } from "../utils/userProfile";
 
 export default function AppNavbar() {
   const { user, logout } = useAuth();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'nav-link active' : 'nav-link';
+    isActive ? "nav-link active" : "nav-link";
 
   return (
     <Navbar expand="md" fixed="top" className="navbar-coronados" variant="dark">
@@ -23,10 +23,15 @@ export default function AppNavbar() {
           <Nav className="me-auto">
             <NavLink to="/" className={linkClass} end>
               Inicio
-            </NavLink>            
+            </NavLink>
           </Nav>
           <UserSearch />
-         
+          <NavLink to="/login" className={linkClass}>
+            Login
+          </NavLink>
+          <NavLink to="/registro" className={linkClass}>
+            Registro
+          </NavLink>
         </Navbar.Collapse>
       </Container>
     </Navbar>
