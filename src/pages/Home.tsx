@@ -1,41 +1,32 @@
-import { Alert, Col, Container, Row, Spinner } from 'react-bootstrap';
-import { getPosts } from '../api';
+import { useEffect, useState } from 'react';
+import { Alert, Badge, Col, Container, Row, Spinner } from 'react-bootstrap';
+import { getPosts } from '../api/api';
 import PostCard from '../components/PostCard';
-import PostFilterPanel from '../components/PostFilterPanel';
 import { useAuth } from '../context/AuthContext';
 import { integrantes } from '../data/integrantes';
-import { useAsyncData } from '../hooks/useAsyncData';
-import { usePostFilters } from '../hooks/usePostFilters';
 import type { Post } from '../types';
-import { getEmptyFilterMessage } from '../utils/emptyFilterMessage';
 
 export default function Home() {
   const { user } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
 
-  const {
-    data: posts,
-    loading,
-    error,
-  } = useAsyncData(() => getPosts(undefined, user?.id), [user?.id], {
-    initialData: [] as Post[],
-  });
+  useEffect(() => {
+    getPosts(undefined, user?.id)
+      .then(setPosts)
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
-  const {
-    tagFilter,
-    setTagFilter,
-    textFilter,
-    setTextFilter,
-    dateFrom,
-    setDateFrom,
-    dateTo,
-    setDateTo,
-    selectedUser,
-    setSelectedUser,
-    allTags,
-    filteredPosts,
-    hasActiveFilters,
-    clearFilters,
-  } = usePostFilters(posts ?? []);
+  const allTags = Array.from(
+    new Set(posts.flatMap((post) => post.tags?.map((tag) => tag.name) ?? [])),
+  ).sort();
+
+  const filteredPosts = tagFilter
+    ? posts.filter((post) => post.tags?.some((tag) => tag.name === tagFilter))
+    : posts;
 
   return (
     <Container>
@@ -49,33 +40,29 @@ export default function Home() {
       <section className="mb-5">
         <h2 className="h4 mb-3">Feed reciente</h2>
 
-        {!loading && !error && (posts?.length ?? 0) > 0 && (
-          <PostFilterPanel
-            idPrefix="home"
-            allTags={allTags}
-            tagFilter={tagFilter}
-            onTagFilterChange={setTagFilter}
-            textFilter={textFilter}
-            onTextFilterChange={setTextFilter}
-            dateFrom={dateFrom}
-            onDateFromChange={setDateFrom}
-            dateTo={dateTo}
-            onDateToChange={setDateTo}
-            onClear={clearFilters}
-            canClear={hasActiveFilters}
-            showUserFilter
-            selectedUser={selectedUser}
-            onSelectUser={setSelectedUser}
-            onClearUser={() => setSelectedUser(null)}
-          />
-        )}
-
-        {!loading && !error && (posts?.length ?? 0) > 0 && (
-          <p className="small text-muted mb-3">
-            {filteredPosts.length}{' '}
-            {filteredPosts.length === 1 ? 'publicación' : 'publicaciones'}
-            {hasActiveFilters ? ' con los filtros aplicados' : ''}
-          </p>
+        {allTags.length > 0 && (
+          <div className="mb-3 d-flex flex-wrap gap-2 align-items-center">
+            <span className="small text-muted">Filtrar por tag:</span>
+            <Badge
+              bg={tagFilter === '' ? 'primary' : 'secondary'}
+              role="button"
+              onClick={() => setTagFilter('')}
+              className="tag-filter"
+            >
+              Todos
+            </Badge>
+            {allTags.map((tag) => (
+              <Badge
+                key={tag}
+                bg={tagFilter === tag ? 'primary' : 'secondary'}
+                role="button"
+                onClick={() => setTagFilter(tag)}
+                className="tag-filter"
+              >
+                #{tag}
+              </Badge>
+            ))}
+          </div>
         )}
 
         {loading && (
@@ -86,14 +73,8 @@ export default function Home() {
 
         {error && <Alert variant="danger">{error}</Alert>}
 
-        {!loading && !error && (posts?.length ?? 0) === 0 && (
+        {!loading && !error && filteredPosts.length === 0 && (
           <Alert variant="info">No hay publicaciones para mostrar.</Alert>
-        )}
-
-        {!loading && !error && (posts?.length ?? 0) > 0 && filteredPosts.length === 0 && (
-          <Alert variant="light" className="alert-accent">
-            {getEmptyFilterMessage({ selectedUser, textFilter, tagFilter })}
-          </Alert>
         )}
 
         <Row xs={1} md={2} lg={3} className="g-4">

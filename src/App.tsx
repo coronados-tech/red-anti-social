@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PostDetail from "./pages/PostDetail"; 
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/post/:id" element={<PostDetail />} />
         </Routes>
       </main>
       <Footer />
