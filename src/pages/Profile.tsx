@@ -16,6 +16,8 @@ import ProfileAvatar from '../components/ProfileAvatar';
 import { useAuth } from '../context/AuthContext';
 import type { FollowUserSummary, Post, User } from '../types';
 import { userProfilePath } from '../utils/userProfile';
+import ProfilePhotoEditor from '../components/ProfilePhotoEditor';
+import UserFollowList from '../components/UserFollowList';
 
 interface ProfileForm {
   nickname: string;

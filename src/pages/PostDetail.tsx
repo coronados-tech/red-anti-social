@@ -319,13 +319,12 @@ export default function PostDetail() {
               <div className="post-card-meta text-muted small mb-3">
                 <div className="post-card-meta-row">
                   <ProfileAvatar
-                    user={post.user ?? { id: post.user_id }}
-                    size="md"
-                    linkToProfile={Boolean(post.user?.nickname)}
+                    url={post.user?.profilePicture}
+                    alt={`Foto de ${post.user?.name ?? 'usuario'}`}
                   />
                   <span>
                     {post.user?.nickname ? (
-                      <Link to={userProfilePath(post.user.nickname)} className="post-card-author">
+                      <Link to={userProfilePath(Number(post.user_id))} className="post-card-author">
                         @{post.user.nickname}
                       </Link>
                     ) : (
