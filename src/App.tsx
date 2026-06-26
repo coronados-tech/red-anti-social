@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PostDetail from "./pages/PostDetail"; 
+import Profile from "./pages/Profile";
+import NewPost from "./pages/NewPost";
 
 function App() {
   return (
@@ -16,14 +18,25 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
+          
           <Route
             path="/perfil"
             element={
               <ProtectedRoute>
-                <div>Perfil próximamente</div>
+                <Profile />
               </ProtectedRoute>
             }
           />
+          
+          <Route
+            path="/nuevo-post"
+            element={
+              <ProtectedRoute>
+                <NewPost />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/post/:id" element={<PostDetail />} />
         </Routes>
       </main>

@@ -1,12 +1,24 @@
 import { Link } from 'react-router-dom';
-import { Badge, Button, Card } from 'react-bootstrap';
+import { Badge, Card } from 'react-bootstrap';
 import ProfileAvatar from './ProfileAvatar';
 import type { Post } from '../types';
-import { formatPostDate } from '../utils/formatDate';
 import { userProfilePath } from '../utils/userProfile';
 
 interface PostCardProps {
   post: Post;
+}
+
+function formatPostDate(dateString?: string): string {
+  if (!dateString) return '';
+  try {
+    return new Date(dateString).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  } catch {
+    return dateString;
+  }
 }
 
 export default function PostCard({ post }: PostCardProps) {
@@ -28,19 +40,18 @@ export default function PostCard({ post }: PostCardProps) {
         </Card.Title>
 
         <div className="post-card-meta text-muted small mb-2">
-          <div className="post-card-meta-row">
+          <div className="post-card-meta-row d-flex align-items-center">
             <ProfileAvatar
-              user={post.user ?? { id: authorId }}
-              size="sm"
-              linkToProfile={Boolean(post.user?.nickname)}
+              url={post.user?.profilePicture}
+              alt={`Avatar de ${post.user?.nickname ?? 'usuario'}`}
             />
             <span>
-              {post.user?.nickname ? (
-                <Link to={userProfilePath(post.user.nickname)} className="post-card-author">
+              {post.user?.id ? (
+                <Link to={userProfilePath(post.user.id)} className="post-card-author me-1">
                   {authorLabel}
                 </Link>
               ) : (
-                <span>{authorLabel}</span>
+                <span className="me-1">{authorLabel}</span>
               )}
               <span className="mx-1">·</span>
               <span>{formatPostDate(post.createdAt)}</span>
@@ -66,9 +77,9 @@ export default function PostCard({ post }: PostCardProps) {
           {commentCount === 1 ? '1 comentario visible' : `${commentCount} comentarios visibles`}
         </p>
 
-        <Button as={Link} to={`/post/${post.id}`} variant="outline-primary" size="sm" className="mt-auto">
+        <Link to={`/post/${post.id}`} className="btn btn-outline-primary btn-sm mt-auto text-center">
           Ver más
-        </Button>
+        </Link>
       </Card.Body>
     </Card>
   );
