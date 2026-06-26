@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Badge, Col, Container, Row, Spinner } from 'react-bootstrap';
-import { getPosts } from '../api/api';
+import { getPosts } from '../api/posts';
 import PostCard from '../components/PostCard';
 import { useAuth } from '../context/AuthContext';
 import { integrantes } from '../data/integrantes';

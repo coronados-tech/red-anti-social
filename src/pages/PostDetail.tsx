@@ -1,14 +1,14 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Badge, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
+import { createComment } from '../api/comment';
 import {
-  createComment,
   deletePost,
   getPostById,
   getTags,
   updatePost,
   uploadPostImage,
-} from '../api/api';
+} from '../api/posts';
 import TagSelector from '../components/TagSelector';
 import ProfileAvatar from '../components/ProfileAvatar';
 import { useAuth } from '../context/AuthContext';

@@ -1,4 +1,4 @@
-import type { Post, Tag, CreatePostPayload, PostImage } from "../types";
+import type { Post, Tag, CreatePostPayload, PostImage, UpdatePostPayload } from "../types";
 import { API_URL, requestJson } from "./client";
 
 export async function getPosts(userId?: number, viewerId?: number): Promise<Post[]> {
@@ -9,6 +9,14 @@ export async function getPosts(userId?: number, viewerId?: number): Promise<Post
     if (params.length > 0) url += `?${params.join("&")}`;
 
     return requestJson<Post[]>(url);
+}
+
+export async function getPostById(id: number, viewerId?: number): Promise<Post> {
+  const url = viewerId !== undefined 
+    ? `${API_URL}/posts/${id}?viewer_id=${viewerId}` 
+    : `${API_URL}/posts/${id}`;
+
+  return requestJson<Post>(url);
 }
 
 export async function getTags(): Promise<Tag[]> {
@@ -33,4 +41,20 @@ export async function uploadPostImage(postId: number, file: File): Promise<PostI
         method: 'POST',
         body: formData,
     });
+}
+
+export async function updatePost(id: number, payload: UpdatePostPayload): Promise<Post> {
+  return requestJson<Post>(`${API_URL}/posts/${id}`, {
+    method: 'PATCH',
+    headers: { 
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deletePost(id: number): Promise<void> {
+  return requestJson<void>(`${API_URL}/posts/${id}`, {
+    method: 'DELETE',
+  });
 }
