@@ -19,10 +19,11 @@ interface PostFilterPanelProps {
   selectedUser?: SearchableUser | null;
   onSelectUser?: (user: SearchableUser) => void;
   onClearUser?: () => void;
+  layout?: 'default' | 'sidebar';
 }
 
 export default function PostFilterPanel({
-  title = 'Buscar publicaciones',
+  title = 'Buscador de publicaciones',
   idPrefix,
   allTags,
   tagFilter,
@@ -34,18 +35,21 @@ export default function PostFilterPanel({
   dateTo,
   onDateToChange,
   onClear,
-  canClear = true,
+  canClear = false,
   showUserFilter = false,
   selectedUser = null,
   onSelectUser,
   onClearUser,
+  layout = 'default',
 }: PostFilterPanelProps) {
+  const isSidebar = layout === 'sidebar';
+
   return (
-    <Card className="form-card mb-4">
+    <Card className={`form-card ${isSidebar ? 'home-feed-filters-card mb-0' : 'mb-4'}`}>
       <Card.Body>
         <h3 className="h6 mb-3">{title}</h3>
-        <Row className="g-3 home-post-filters">
-          <Col xs={12} md={showUserFilter ? 6 : 12}>
+        <Row className={`g-3 home-post-filters ${isSidebar ? 'home-post-filters-sidebar flex-column' : ''}`}>
+          <Col xs={12} md={isSidebar ? 12 : showUserFilter ? 6 : 12}>
             <Form.Group controlId={`${idPrefix}-filter-text`}>
               <Form.Label className="small">{showUserFilter ? 'Texto' : 'Buscar'}</Form.Label>
               <Form.Control
@@ -57,21 +61,23 @@ export default function PostFilterPanel({
             </Form.Group>
           </Col>
           {showUserFilter && onSelectUser && onClearUser && (
-            <Col xs={12} md={6}>
-              <Form.Group controlId={`${idPrefix}-filter-user`}>
-                <Form.Label className="small">Usuario</Form.Label>
+            <Col xs={12} md={isSidebar ? 12 : 6}>
+              <Form.Group>
+                <Form.Label className="small" htmlFor={`${idPrefix}-filter-user-input`}>
+                  Usuario
+                </Form.Label>
                 <UserSearch
                   mode="select"
                   selectedUser={selectedUser}
                   onSelectUser={onSelectUser}
                   onClearSelection={onClearUser}
-                  placeholder="Buscar por nickname o nombre..."
+                  placeholder="Nickname o nombre"
                   controlId={`${idPrefix}-filter-user-input`}
                 />
               </Form.Group>
             </Col>
           )}
-          <Col xs={12} md={4}>
+          <Col xs={12} md={isSidebar ? 12 : 4}>
             <Form.Group controlId={`${idPrefix}-filter-date-from`}>
               <Form.Label className="small">Desde</Form.Label>
               <Form.Control
@@ -81,7 +87,7 @@ export default function PostFilterPanel({
               />
             </Form.Group>
           </Col>
-          <Col xs={12} md={4}>
+          <Col xs={12} md={isSidebar ? 12 : 4}>
             <Form.Group controlId={`${idPrefix}-filter-date-to`}>
               <Form.Label className="small">Hasta</Form.Label>
               <Form.Control
@@ -91,20 +97,12 @@ export default function PostFilterPanel({
               />
             </Form.Group>
           </Col>
-          <Col xs={12} md={4} className="d-flex align-items-end">
-            <button
-              type="button"
-              className={`btn btn-outline-danger-soft ${showUserFilter ? 'w-100 home-post-filters-clear' : 'btn-sm'}`}
-              onClick={onClear}
-              disabled={!canClear}
-            >
-              Limpiar filtros
-            </button>
-          </Col>
         </Row>
 
         {allTags.length > 0 && (
-          <div className="mt-3 d-flex flex-wrap gap-2 align-items-center">
+          <div
+            className={`mt-3 d-flex flex-wrap gap-2 align-items-center ${isSidebar ? 'home-feed-filters-tags' : ''}`}
+          >
             <span className="small text-muted">Etiqueta:</span>
             <Badge
               bg={tagFilter === '' ? 'primary' : 'secondary'}
@@ -126,6 +124,16 @@ export default function PostFilterPanel({
               </Badge>
             ))}
           </div>
+        )}
+
+        {canClear && (
+          <button
+            type="button"
+            className="btn btn-danger w-100 mt-3 post-filters-clear-btn"
+            onClick={onClear}
+          >
+            Limpiar filtros
+          </button>
         )}
       </Card.Body>
     </Card>

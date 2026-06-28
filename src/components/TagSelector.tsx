@@ -1,6 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { Badge, Button, Form, InputGroup } from 'react-bootstrap';
+import { CloseIcon } from './Icons';
 import type { Tag } from '../types';
+import { focusPrimerCampoConError } from '../utils/focusPrimerCampoConError';
+import { validarNuevoTag } from '../utils/validacionPost';
 
 interface TagSelectorProps {
   availableTags: Tag[];
@@ -20,23 +23,39 @@ export default function TagSelector({
   onChangeSelected,
 }: TagSelectorProps) {
   const [newTag, setNewTag] = useState('');
+  const [tagError, setTagError] = useState('');
+  const groupRef = useRef<HTMLDivElement>(null);
 
   const customTags = selectedTags.filter(
     (name) => !availableTags.some((tag) => tag.name === name),
   );
 
-  function handleAddTag(event: FormEvent) {
-    event.preventDefault();
+  function handleAddTag() {
+    const error = validarNuevoTag(newTag);
+    if (error) {
+      setTagError(error);
+      focusPrimerCampoConError(groupRef.current);
+      return;
+    }
+
     const normalized = normalizeTagName(newTag);
 
-    if (!normalized) return;
     if (selectedTags.includes(normalized)) {
       setNewTag('');
+      setTagError('');
       return;
     }
 
     onChangeSelected([...selectedTags, normalized]);
     setNewTag('');
+    setTagError('');
+  }
+
+  function handleTagKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleAddTag();
+    }
   }
 
   function removeCustomTag(tagName: string) {
@@ -44,7 +63,7 @@ export default function TagSelector({
   }
 
   return (
-    <Form.Group className="mb-3">
+    <Form.Group ref={groupRef} className="mb-3">
       <Form.Label>Etiquetas</Form.Label>
 
       {availableTags.length > 0 && (
@@ -66,13 +85,20 @@ export default function TagSelector({
       <InputGroup className="mb-2">
         <Form.Control
           value={newTag}
-          onChange={(e) => setNewTag(e.target.value)}
+          onChange={(e) => {
+            setNewTag(e.target.value);
+            setTagError('');
+          }}
+          onKeyDown={handleTagKeyDown}
           placeholder="Ej: gaming, viajes..."
+          maxLength={50}
+          isInvalid={!!tagError}
         />
         <Button type="button" variant="outline-accent" onClick={handleAddTag}>
           Agregar
         </Button>
       </InputGroup>
+      {tagError && <div className="invalid-feedback d-block mb-2">{tagError}</div>}
       <Form.Text>Si la etiqueta no existe, el backend la crea al guardar el post.</Form.Text>
 
       {customTags.length > 0 && (
@@ -86,7 +112,7 @@ export default function TagSelector({
                 onClick={() => removeCustomTag(tagName)}
                 aria-label={`Quitar etiqueta ${tagName}`}
               >
-                ×
+                <CloseIcon className="tag-remove-icon" />
               </button>
             </Badge>
           ))}

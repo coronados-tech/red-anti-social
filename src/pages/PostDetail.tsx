@@ -1,32 +1,68 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
-import { createComment } from '../api/comment';
+import { useState, useEffect, type FormEvent } from 'react';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Alert, Button, Card, Form, Spinner } from 'react-bootstrap';
+import PageContainer from '../components/PageContainer';
 import {
+  createComment,
   deletePost,
+  deletePostImage,
   getPostById,
+  getPostBySlug,
   getTags,
   updatePost,
   uploadPostImage,
-} from '../api/posts';
+} from '../api';
 import TagSelector from '../components/TagSelector';
+import TagBadge from '../components/TagBadge';
 import ProfileAvatar from '../components/ProfileAvatar';
+import PostImageCarousel from '../components/PostImageCarousel';
+import BackLink from '../components/BackLink';
+import PostImageEditor from '../components/PostImageEditor';
+import ReportPostModal from '../components/ReportPostModal';
+import ReportPostButton from '../components/ReportPostButton';
 import { useAuth } from '../context/AuthContext';
-import type { Post, Tag } from '../types';
-import { formatPostDate } from '../utils/formatDate';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { DEFAULT_POST_IMAGE } from '../constants/assets';
+import type { Post, PostImage, Tag } from '../types';
+import { formatCommentDate, formatPostDate } from '../utils/formatDate';
+import { postPath } from '../utils/postPath';
 import { userProfilePath } from '../utils/userProfile';
+import { focusPrimerCampoConError } from '../utils/focusPrimerCampoConError';
+import { validarPost, type PostFormErrors } from '../utils/validacionPost';
 
 export default function PostDetail() {
-  const { id } = useParams();
-  const postId = Number(id);
+  const { slug: slugParam } = useParams();
+  const { hash } = useLocation();
+  const [searchParams] = useSearchParams();
+  const activeTagFilter = searchParams.get('tag') ?? '';
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [post, setPost] = useState<Post | null>(null);
+  const {
+    data: post,
+    loading,
+    error,
+    setData: setPost,
+  } = useAsyncData(
+    async () => {
+      const param = slugParam?.trim();
+      if (!param) {
+        throw new Error('Publicación no encontrada');
+      }
+
+      if (/^\d+$/.test(param)) {
+        return getPostById(Number(param), user?.id);
+      }
+
+      return getPostBySlug(param, user?.id);
+    },
+    [slugParam, user?.id],
+  );
+
+  const postId = post?.id;
+
   const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
   const [commentError, setCommentError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -35,26 +71,34 @@ export default function PostDetail() {
   const [editDescription, setEditDescription] = useState('');
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [editExistingImages, setEditExistingImages] = useState<PostImage[]>([]);
   const [editImageFiles, setEditImageFiles] = useState<File[]>([]);
+  const [editErrores, setEditErrores] = useState<PostFormErrors>({});
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const isOwner = user?.id === post?.user_id;
 
   useEffect(() => {
-    if (Number.isNaN(postId)) {
-      setError('ID de publicación inválido');
-      setLoading(false);
-      return;
-    }
+    if (!post?.slug || !slugParam) return;
 
-    getPostById(postId, user?.id)
-      .then(setPost)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [postId, user?.id]);
+    if (/^\d+$/.test(slugParam) && slugParam !== post.slug) {
+      navigate({ pathname: postPath(post.slug), hash }, { replace: true });
+    }
+  }, [post, slugParam, navigate, hash]);
+
+  useEffect(() => {
+    if (!hash || loading || !post) return;
+
+    const targetId = hash.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [hash, loading, post]);
 
   function startEditing() {
     if (!post) return;
@@ -62,7 +106,9 @@ export default function PostDetail() {
     setEditTitulo(post.titulo);
     setEditDescription(post.description);
     setSelectedTags(post.tags?.map((tag) => tag.name) ?? []);
+    setEditExistingImages(post.postImages ?? []);
     setEditImageFiles([]);
+    setEditErrores({});
     setEditError('');
     setEditSuccess('');
     setIsEditing(true);
@@ -75,7 +121,9 @@ export default function PostDetail() {
   function cancelEditing() {
     setIsEditing(false);
     setEditError('');
+    setEditErrores({});
     setEditImageFiles([]);
+    setEditExistingImages([]);
   }
 
   function toggleTag(tagName: string) {
@@ -84,9 +132,18 @@ export default function PostDetail() {
     );
   }
 
-  function handleEditFilesChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files ? Array.from(event.target.files) : [];
-    setEditImageFiles(files);
+  function handleAddEditFiles(files: File[]) {
+    setEditImageFiles((prev) => [...prev, ...files]);
+    setEditErrores((prev) => ({ ...prev, imageFiles: '' }));
+  }
+
+  function removeExistingImage(imageId: number) {
+    setEditExistingImages((prev) => prev.filter((image) => image.id !== imageId));
+  }
+
+  function removeNewImage(index: number) {
+    setEditImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setEditErrores((prev) => ({ ...prev, imageFiles: '' }));
   }
 
   async function handleEditSubmit(event: FormEvent) {
@@ -94,13 +151,14 @@ export default function PostDetail() {
     setEditError('');
     setEditSuccess('');
 
-    if (!editTitulo.trim()) {
-      setEditError('El título no puede estar vacío.');
-      return;
-    }
-
-    if (!editDescription.trim()) {
-      setEditError('La descripción no puede estar vacía.');
+    const nuevosErrores = validarPost({
+      titulo: editTitulo,
+      description: editDescription,
+      imageFiles: editImageFiles,
+    });
+    setEditErrores(nuevosErrores);
+    if (Object.keys(nuevosErrores).length > 0) {
+      focusPrimerCampoConError(event.currentTarget);
       return;
     }
 
@@ -116,14 +174,26 @@ export default function PostDetail() {
         payload.tags = selectedTags;
       }
 
-      const updatedPost = await updatePost(postId, payload);
+      const updatedPost = await updatePost(postId!, payload);
 
-      for (const file of editImageFiles) {
-        await uploadPostImage(postId, file);
+      const originalImageIds = new Set(post.postImages?.map((image) => image.id) ?? []);
+      const remainingImageIds = new Set(editExistingImages.map((image) => image.id));
+      const imageIdsToDelete = [...originalImageIds].filter(
+        (imageId) => !remainingImageIds.has(imageId),
+      );
+
+      for (const imageId of imageIdsToDelete) {
+        await deletePostImage(postId!, imageId);
       }
 
-      const refreshedPost =
-        editImageFiles.length > 0 ? await getPostById(postId) : updatedPost;
+      for (const file of editImageFiles) {
+        await uploadPostImage(postId!, file);
+      }
+
+      const imagesChanged = imageIdsToDelete.length > 0 || editImageFiles.length > 0;
+      const refreshedPost = imagesChanged
+        ? await getPostById(postId!, user?.id)
+        : updatedPost;
 
       setPost((prev) =>
         prev
@@ -134,7 +204,13 @@ export default function PostDetail() {
           : refreshedPost,
       );
       setIsEditing(false);
+      setEditImageFiles([]);
+      setEditExistingImages([]);
       setEditSuccess('Publicación actualizada.');
+
+      if (refreshedPost.slug && refreshedPost.slug !== slugParam) {
+        navigate(postPath(refreshedPost.slug), { replace: true });
+      }
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'No se pudo actualizar la publicación');
     } finally {
@@ -150,7 +226,7 @@ export default function PostDetail() {
     setEditError('');
 
     try {
-      await deletePost(postId);
+      await deletePost(postId!);
       navigate('/perfil');
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'No se pudo eliminar la publicación');
@@ -165,6 +241,7 @@ export default function PostDetail() {
 
     if (!content.trim()) {
       setCommentError('El comentario no puede estar vacío.');
+      focusPrimerCampoConError(event.currentTarget);
       return;
     }
 
@@ -178,7 +255,7 @@ export default function PostDetail() {
     try {
       const newComment = await createComment({
         content: content.trim(),
-        post_id: postId,
+        post_id: postId!,
         user_id: user.id,
       });
 
@@ -201,44 +278,54 @@ export default function PostDetail() {
 
   if (loading) {
     return (
-      <Container className="text-center py-5">
+      <PageContainer className="text-center">
         <Spinner animation="border" size="sm" /> Cargando publicación...
-      </Container>
+      </PageContainer>
     );
   }
 
   if (error || !post) {
     return (
-      <Container>
+      <PageContainer>
         <Alert variant="danger">{error || 'Publicación no encontrada'}</Alert>
         <Link to="/">Volver al inicio</Link>
-      </Container>
+      </PageContainer>
     );
   }
 
   return (
-    <Container className="pb-5">
-      <Link to="/" className="small d-inline-block mb-3">
-        ← Volver al feed
-      </Link>
+    <PageContainer>
+      <BackLink to="/">Volver al feed</BackLink>
 
       {editSuccess && !isEditing && <Alert variant="success">{editSuccess}</Alert>}
 
-      <Card className="mb-4">
+      {!user && (
+        <Alert variant="warning" className="mb-3">
+          <Link to="/login">Iniciá sesión</Link> para poder comentar.
+        </Alert>
+      )}
+
+      <Card className="post-card mb-4">
         <Card.Body>
-          {isOwner && !isEditing && (
+          {!isEditing && (
             <div className="d-flex justify-content-end gap-2 mb-3">
-              <Button variant="outline-accent" size="sm" onClick={startEditing}>
-                Editar publicación
-              </Button>
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? 'Eliminando...' : 'Eliminar'}
-              </Button>
+              {isOwner ? (
+                <>
+                  <Button variant="outline-accent" size="sm" onClick={startEditing}>
+                    Editar publicación
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                  >
+                    {deleting ? 'Eliminando...' : 'Eliminar'}
+                  </Button>
+                </>
+              ) : (
+                <ReportPostButton onClick={() => setShowReportModal(true)} />
+              )}
             </div>
           )}
 
@@ -248,16 +335,22 @@ export default function PostDetail() {
 
               {editError && <Alert variant="danger">{editError}</Alert>}
 
-              <Form onSubmit={handleEditSubmit}>
+              <Form onSubmit={handleEditSubmit} noValidate>
                 <Form.Group className="mb-3" controlId="edit-titulo">
                   <Form.Label>Título *</Form.Label>
                   <Form.Control
                     type="text"
                     value={editTitulo}
-                    onChange={(e) => setEditTitulo(e.target.value)}
+                    onChange={(e) => {
+                      setEditTitulo(e.target.value);
+                      setEditErrores((prev) => ({ ...prev, titulo: '' }));
+                    }}
                     maxLength={200}
-                    required
+                    isInvalid={!!editErrores.titulo}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {editErrores.titulo}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="edit-description">
@@ -266,9 +359,16 @@ export default function PostDetail() {
                     as="textarea"
                     rows={4}
                     value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setEditDescription(e.target.value);
+                      setEditErrores((prev) => ({ ...prev, description: '' }));
+                    }}
+                    maxLength={5000}
+                    isInvalid={!!editErrores.description}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {editErrores.description}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <TagSelector
@@ -278,16 +378,15 @@ export default function PostDetail() {
                   onChangeSelected={setSelectedTags}
                 />
 
-                <Form.Group className="mb-3" controlId="edit-images">
-                  <Form.Label>Agregar imágenes (opcional)</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    onChange={handleEditFilesChange}
-                  />
-                  <Form.Text>Las imágenes nuevas se suman a las que ya tiene el post.</Form.Text>
-                </Form.Group>
+                <PostImageEditor
+                  inputId="edit-images"
+                  existingImages={editExistingImages}
+                  newFiles={editImageFiles}
+                  onRemoveExisting={removeExistingImage}
+                  onRemoveNew={removeNewImage}
+                  onAddFiles={handleAddEditFiles}
+                  imageError={editErrores.imageFiles}
+                />
 
                 <div className="d-flex flex-wrap gap-2">
                   <Button type="submit" variant="primary" disabled={savingEdit || deleting}>
@@ -295,7 +394,7 @@ export default function PostDetail() {
                   </Button>
                   <Button
                     type="button"
-                    variant="outline-accent"
+                    variant="outline-secondary"
                     onClick={cancelEditing}
                     disabled={savingEdit || deleting}
                   >
@@ -319,12 +418,13 @@ export default function PostDetail() {
               <div className="post-card-meta text-muted small mb-3">
                 <div className="post-card-meta-row">
                   <ProfileAvatar
-                    url={post.user?.profilePicture}
-                    alt={`Foto de ${post.user?.name ?? 'usuario'}`}
+                    user={post.user ?? { id: post.user_id }}
+                    size="md"
+                    linkToProfile={Boolean(post.user?.nickname)}
                   />
                   <span>
                     {post.user?.nickname ? (
-                      <Link to={userProfilePath(Number(post.user_id))} className="post-card-author">
+                      <Link to={userProfilePath(post.user.nickname)} className="post-card-author">
                         @{post.user.nickname}
                       </Link>
                     ) : (
@@ -338,26 +438,24 @@ export default function PostDetail() {
 
               <Card.Text className="post-description">{post.description}</Card.Text>
 
-              {post.postImages && post.postImages.length > 0 && (
-                <Row xs={1} md={2} className="g-3 mb-3">
-                  {post.postImages.map((image) => (
-                    <Col key={image.id}>
-                      <img
-                        src={image.url}
-                        alt="Imagen del post"
-                        className="img-fluid rounded post-detail-img"
-                      />
-                    </Col>
-                  ))}
-                </Row>
+              {post.postImages && post.postImages.length > 0 ? (
+                <div className="mb-3">
+                  <PostImageCarousel images={post.postImages} />
+                </div>
+              ) : (
+                <div className="mb-3">
+                  <img
+                    src={DEFAULT_POST_IMAGE}
+                    alt="Anti-Social Net"
+                    className="post-detail-img post-detail-img-placeholder rounded"
+                  />
+                </div>
               )}
 
               {post.tags && post.tags.length > 0 && (
                 <div>
                   {post.tags.map((tag) => (
-                    <Badge key={tag.id} bg="secondary" className="me-1">
-                      #{tag.name}
-                    </Badge>
+                    <TagBadge key={tag.id} name={tag.name} activeTagFilter={activeTagFilter} />
                   ))}
                 </div>
               )}
@@ -368,54 +466,92 @@ export default function PostDetail() {
 
       {!isEditing && (
         <>
-          <section className="mb-4">
-            <h2 className="h5">Comentarios visibles</h2>
+          <section id="comentarios" className="mb-4 post-comments-section">
+            <h2 className="h5">Comentarios</h2>
             {post.comments && post.comments.length > 0 ? (
               <ul className="list-group">
-                {post.comments.map((comment) => (
-                  <li key={comment.id} className="list-group-item">
-                    {comment.content}
-                  </li>
-                ))}
+                {post.comments.map((comment) => {
+                  const authorId = comment.user?.id ?? comment.user_id;
+                  const authorLabel = comment.user?.nickname
+                    ? `@${comment.user.nickname}`
+                    : authorId
+                      ? `Usuario #${authorId}`
+                      : 'Usuario desconocido';
+
+                  return (
+                    <li key={comment.id} className="list-group-item">
+                      <div className="post-card-meta text-muted small mb-2">
+                        <div className="post-card-meta-row">
+                          <ProfileAvatar
+                            user={comment.user ?? { id: comment.user_id }}
+                            size="sm"
+                            linkToProfile={Boolean(comment.user?.nickname)}
+                          />
+                          <span>
+                            {comment.user?.nickname ? (
+                              <Link
+                                to={userProfilePath(comment.user.nickname)}
+                                className="post-card-author"
+                              >
+                                {authorLabel}
+                              </Link>
+                            ) : (
+                              <span>{authorLabel}</span>
+                            )}
+                            <span className="mx-1">·</span>
+                            <span>{formatCommentDate(comment.createdAt)}</span>
+                          </span>
+                        </div>
+                      </div>
+                      <p className="mb-0">{comment.content}</p>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
-              <Alert variant="light">Todavía no hay comentarios visibles en este post.</Alert>
+              <Alert variant="light">Todavía no hay comentarios en este post.</Alert>
             )}
           </section>
 
-          <Card className="form-card">
-            <Card.Body>
-              <h2 className="h5 mb-3">Agregar comentario</h2>
+          {user && (
+            <Card className="form-card">
+              <Card.Body>
+                <h2 className="h5 mb-3">Dejanos tu opinión</h2>
 
-              {!user && (
-                <Alert variant="warning">
-                  <Link to="/login">Iniciá sesión</Link> para poder comentar.
-                </Alert>
-              )}
+                {success && <Alert variant="success">{success}</Alert>}
 
-              {commentError && <Alert variant="danger">{commentError}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
-
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="comment-content">
-                  <Form.Label>Comentario *</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    disabled={!user || sending}
-                    required
-                  />
-                </Form.Group>
-                <Button type="submit" variant="primary" disabled={!user || sending}>
-                  {sending ? 'Enviando...' : 'Publicar comentario'}
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3" controlId="comment-content">
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={content}
+                      onChange={(e) => {
+                        setContent(e.target.value);
+                        setCommentError('');
+                      }}
+                      placeholder={`Comentar como ${user.nickname}`}
+                      disabled={sending}
+                      isInvalid={!!commentError}
+                    />
+                    <Form.Control.Feedback type="invalid">{commentError}</Form.Control.Feedback>
+                  </Form.Group>
+                  <Button type="submit" variant="primary" disabled={sending}>
+                    {sending ? 'Enviando...' : 'Comentar'}
+                  </Button>
+                </Form>
+              </Card.Body>
+            </Card>
+          )}
         </>
       )}
-    </Container>
+
+      <ReportPostModal
+        show={showReportModal}
+        onHide={() => setShowReportModal(false)}
+        postTitulo={post.titulo}
+        postSlug={post.slug}
+      />
+    </PageContainer>
   );
 }

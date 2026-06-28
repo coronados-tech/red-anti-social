@@ -32,6 +32,7 @@ export interface Comment {
 
 export interface Post {
   id: number;
+  slug: string;
   titulo: string;
   description: string;
   user_id: number;
@@ -41,6 +42,14 @@ export interface Post {
   comments?: Comment[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PaginatedPosts {
+  items: Post[];
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
 }
 
 export interface ApiError {

@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PageContainer from './PageContainer';
 import type { ReactNode } from 'react';
 
 interface ProtectedRouteProps {
@@ -11,9 +12,9 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <PageContainer className="text-center">
         <p className="text-muted">Cargando sesión...</p>
-      </div>
+      </PageContainer>
     );
   }
 

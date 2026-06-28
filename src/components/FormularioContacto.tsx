@@ -1,57 +1,34 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
-
-const estadoInicial = {
-  nombre: '',
-  email: '',
-  asunto: '',
-  mensaje: '',
-};
-
-type FormData = typeof estadoInicial;
-type FormErrors = Partial<Record<keyof FormData, string>>;
-
-function validarFormulario(formData: FormData): FormErrors {
-  const errores: FormErrors = {};
-
-  if (!formData.nombre.trim()) {
-    errores.nombre = 'El nombre es obligatorio';
-  } else if (formData.nombre.trim().length < 2) {
-    errores.nombre = 'El nombre debe tener al menos 2 caracteres';
-  }
-
-  if (!formData.email.trim()) {
-    errores.email = 'El email es obligatorio';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    errores.email = 'Ingresá un email válido';
-  }
-
-  if (!formData.mensaje.trim()) {
-    errores.mensaje = 'El mensaje es obligatorio';
-  } else if (formData.mensaje.trim().length < 10) {
-    errores.mensaje = 'El mensaje debe tener al menos 10 caracteres';
-  }
-
-  return errores;
-}
+import { focusPrimerCampoConError } from '../utils/focusPrimerCampoConError';
+import {
+  CONTACTO_FORM_INICIAL,
+  validarContacto,
+  type ContactoFormData,
+  type ContactoFormErrors,
+} from '../utils/validacionContacto';
 
 export default function FormularioContacto() {
-  const [formData, setFormData] = useState(estadoInicial);
-  const [errores, setErrores] = useState<FormErrors>({});
+  const [formData, setFormData] = useState<ContactoFormData>(CONTACTO_FORM_INICIAL);
+  const [errores, setErrores] = useState<ContactoFormErrors>({});
   const [enviado, setEnviado] = useState(false);
   const [nombreConfirmado, setNombreConfirmado] = useState('');
 
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const sanitizedValue = name === 'telefono' ? value.replace(/\D/g, '') : value;
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
     setErrores((prev) => ({ ...prev, [name]: '' }));
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const nuevosErrores = validarFormulario(formData);
+    const nuevosErrores = validarContacto(formData);
     setErrores(nuevosErrores);
-    if (Object.keys(nuevosErrores).length > 0) return;
+    if (Object.keys(nuevosErrores).length > 0) {
+      focusPrimerCampoConError(event.currentTarget);
+      return;
+    }
 
     setNombreConfirmado(formData.nombre.trim());
     setEnviado(true);
@@ -59,7 +36,7 @@ export default function FormularioContacto() {
 
   function volverAlFormulario() {
     setEnviado(false);
-    setFormData(estadoInicial);
+    setFormData(CONTACTO_FORM_INICIAL);
     setErrores({});
   }
 
@@ -89,7 +66,7 @@ export default function FormularioContacto() {
               value={formData.nombre}
               onChange={handleChange}
               isInvalid={!!errores.nombre}
-              placeholder="Ej: Carla"
+              placeholder="Ej: Juan"
             />
             <Form.Control.Feedback type="invalid">{errores.nombre}</Form.Control.Feedback>
           </Form.Group>
@@ -110,15 +87,35 @@ export default function FormularioContacto() {
         </Col>
       </Row>
 
-      <Form.Group className="mb-3">
-        <Form.Label>Asunto (opcional)</Form.Label>
-        <Form.Control
-          name="asunto"
-          value={formData.asunto}
-          onChange={handleChange}
-          placeholder="Ej: Reporte de contenido"
-        />
-      </Form.Group>
+      <Row>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Teléfono (opcional)</Form.Label>
+            <Form.Control
+              type="tel"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              isInvalid={!!errores.telefono}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Ej: 1123456789"
+            />
+            <Form.Control.Feedback type="invalid">{errores.telefono}</Form.Control.Feedback>
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Asunto (opcional)</Form.Label>
+            <Form.Control
+              name="asunto"
+              value={formData.asunto}
+              onChange={handleChange}
+              placeholder="Ej: Reporte de contenido"
+            />
+          </Form.Group>
+        </Col>
+      </Row>
 
       <Form.Group className="mb-4">
         <Form.Label>Mensaje *</Form.Label>

@@ -1,18 +1,24 @@
-import { Button } from "react-bootstrap";
-import { useTheme } from "../hooks/useTheme";
+import { Button } from 'react-bootstrap';
+import { useTheme } from '../context/ThemeContext';
+import { MoonIcon, SunIcon } from './Icons';
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <Button
-      variant="outline-light"
+      variant="outline-accent"
       size="sm"
+      className="theme-toggle ms-lg-2"
       onClick={toggleTheme}
-      className="ms-2"
-      title={`Cambiar a tema ${theme === "light" ? "oscuro" : "claro"}`}
+      aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
+      title={isDark ? 'Modo claro' : 'Modo oscuro'}
     >
-      {theme === "light" ? "🌙" : "☀️"}
+      {isDark ? (
+        <SunIcon className="theme-toggle-icon" />
+      ) : (
+        <MoonIcon className="theme-toggle-icon" />
+      )}
     </Button>
   );
 }

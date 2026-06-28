@@ -1,183 +1,186 @@
-import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Alert, Button, Card, Form } from 'react-bootstrap';
+import { createUser, uploadProfilePicture } from '../api';
+import ProfilePhotoPicker from '../components/ProfilePhotoPicker';
+import UsuarioFormFields from '../components/UsuarioFormFields';
+import PageContainer from '../components/PageContainer';
+import { focusPrimerCampoConError } from '../utils/focusPrimerCampoConError';
 import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  Row,
-} from "react-bootstrap";
-import { createUser } from "../api/users";
+  validarRegistro,
+  validarRegistroConsent,
+  type RegistroConsentErrors,
+  type UsuarioFormErrors,
+} from '../utils/validacionUsuario';
 
 export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    nickname: "",
-    name: "",
-    lastName: "",
-    email: "",
-    password: "",
-    birthDate: "",
-    gender: "otro",
+    nickname: '',
+    name: '',
+    lastName: '',
+    email: '',
+    password: '',
+    birthDate: '1990-01-01',
+    gender: '',
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [declareOver16, setDeclareOver16] = useState(false);
+  const [pendingPhotoFile, setPendingPhotoFile] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [errores, setErrores] = useState<UsuarioFormErrors>({});
+  const [consentErrores, setConsentErrores] = useState<RegistroConsentErrors>({});
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) {
+        URL.revokeObjectURL(photoPreviewUrl);
+      }
+    };
+  }, [photoPreviewUrl]);
 
   function updateField(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setErrores((prev) => ({ ...prev, [field]: '' }));
+  }
+
+  function handlePhotoReady(file: File | null) {
+    setPhotoPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+    setPendingPhotoFile(file);
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
-    const required = Object.entries(form).filter(
-      ([key, value]) => key !== "gender" && !value.trim(),
-    );
-    if (required.length > 0) {
-      setError("Completá todos los campos obligatorios.");
+    const nuevosErrores = validarRegistro(form);
+    const nuevosConsentErrores = validarRegistroConsent({ acceptTerms, declareOver16 });
+    setErrores(nuevosErrores);
+    setConsentErrores(nuevosConsentErrores);
+
+    if (
+      Object.keys(nuevosErrores).length > 0 ||
+      Object.keys(nuevosConsentErrores).length > 0
+    ) {
+      focusPrimerCampoConError(event.currentTarget);
       return;
     }
 
     setLoading(true);
 
     try {
-      await createUser(form);
-      setSuccess(
-        "Usuario creado. Ahora podés iniciar sesión con la clave 123456.",
-      );
-      setTimeout(() => navigate("/login"), 1500);
+      const createdUser = await createUser(form);
+
+      if (pendingPhotoFile) {
+        try {
+          await uploadProfilePicture(createdUser.id, pendingPhotoFile);
+        } catch {
+          setSuccess(
+            'Usuario creado, pero no se pudo subir la foto. Podés agregarla desde tu perfil.',
+          );
+          setTimeout(() => navigate('/login'), 2500);
+          return;
+        }
+      }
+
+      setSuccess('Usuario creado. Ahora podés iniciar sesión con tu email/nickname y contraseña.');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "No se pudo crear el usuario",
-      );
+      setError(err instanceof Error ? err.message : 'No se pudo crear el usuario');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <Container>
-      <Row className="justify-content-center">
-        <Col md={8} lg={7}>
-          <Card className="form-card">
-            <Card.Body>
-              <h1 className="h3 mb-3">Registro</h1>
+    <PageContainer fill>
+      <h1 className="h2 mb-3">Registro</h1>
+      <p className="text-muted mb-4">
+        Completá tus datos para crear una cuenta en Anti-Social Net.
+      </p>
 
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
+      <Card className="form-card">
+        <Card.Body className="p-4">
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
 
-              <Form onSubmit={handleSubmit}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-nickname">
-                      <Form.Label>Nickname *</Form.Label>
-                      <Form.Control
-                        value={form.nickname}
-                        onChange={(e) =>
-                          updateField("nickname", e.target.value)
-                        }
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-email">
-                      <Form.Label>Email *</Form.Label>
-                      <Form.Control
-                        type="email"
-                        value={form.email}
-                        onChange={(e) => updateField("email", e.target.value)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+          <Form onSubmit={handleSubmit} noValidate>
+            <ProfilePhotoPicker
+              controlId="reg-profile-photo"
+              user={{
+                nickname: form.nickname,
+                name: form.name,
+                lastName: form.lastName,
+              }}
+              previewUrl={photoPreviewUrl}
+              disabled={loading}
+              onPhotoReady={handlePhotoReady}
+            />
 
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-name">
-                      <Form.Label>Nombre *</Form.Label>
-                      <Form.Control
-                        value={form.name}
-                        onChange={(e) => updateField("name", e.target.value)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-lastName">
-                      <Form.Label>Apellido *</Form.Label>
-                      <Form.Control
-                        value={form.lastName}
-                        onChange={(e) =>
-                          updateField("lastName", e.target.value)
-                        }
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+            <UsuarioFormFields
+              idPrefix="reg"
+              form={form}
+              errores={errores}
+              onFieldChange={updateField}
+              passwordMode="register"
+              showBirthDateLimits
+            />
 
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-password">
-                      <Form.Label>Contraseña *</Form.Label>
-                      <Form.Control
-                        type="password"
-                        value={form.password}
-                        onChange={(e) =>
-                          updateField("password", e.target.value)
-                        }
-                        minLength={6}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3" controlId="reg-birthDate">
-                      <Form.Label>Fecha de nacimiento *</Form.Label>
-                      <Form.Control
-                        type="date"
-                        value={form.birthDate}
-                        onChange={(e) =>
-                          updateField("birthDate", e.target.value)
-                        }
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+            <Form.Group className="mb-3" controlId="reg-declare-over16">
+              <Form.Check
+                type="checkbox"
+                checked={declareOver16}
+                onChange={(e) => {
+                  setDeclareOver16(e.target.checked);
+                  setConsentErrores((prev) => ({ ...prev, declareOver16: '' }));
+                }}
+                isInvalid={!!consentErrores.declareOver16}
+                label="Declaro que soy una persona mayor de 16 años"
+                feedback={consentErrores.declareOver16}
+                feedbackType="invalid"
+              />
+            </Form.Group>
 
-                <Form.Group className="mb-3" controlId="reg-gender">
-                  <Form.Label>Género *</Form.Label>
-                  <Form.Select
-                    value={form.gender}
-                    onChange={(e) => updateField("gender", e.target.value)}
-                  >
-                    <option value="femenino">Femenino</option>
-                    <option value="masculino">Masculino</option>
-                    <option value="otro">Otro</option>
-                  </Form.Select>
-                </Form.Group>
+            <Form.Group className="mb-3" controlId="reg-accept-terms">
+              <Form.Check
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => {
+                  setAcceptTerms(e.target.checked);
+                  setConsentErrores((prev) => ({ ...prev, acceptTerms: '' }));
+                }}
+                isInvalid={!!consentErrores.acceptTerms}
+                label={
+                  <>
+                    Acepto los{' '}
+                    <Link to="/terminos" target="_blank" rel="noopener noreferrer">
+                      términos y condiciones
+                    </Link>
+                  </>
+                }
+                feedback={consentErrores.acceptTerms}
+                feedbackType="invalid"
+              />
+            </Form.Group>
 
-                <Button type="submit" variant="primary" disabled={loading}>
-                  {loading ? "Registrando..." : "Crear cuenta"}
-                </Button>
-              </Form>
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? 'Registrando...' : 'Crear cuenta'}
+            </Button>
+          </Form>
 
-              <p className="mt-3 mb-0 small">
-                ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
-              </p>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+          <p className="mt-3 mb-0 small">
+            ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
+          </p>
+        </Card.Body>
+      </Card>
+    </PageContainer>
   );
 }

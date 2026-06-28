@@ -1,23 +1,32 @@
-export {
-  API_URL,
-  ApiRequestError,
-  getAuthToken,
-  setAuthToken,
-  setOnUnauthorized,
-} from "./client";
+export { API_URL, ApiRequestError, getAuthToken, setAuthToken, setOnUnauthorized } from './client';
 
-export { getPosts, getTags } from "./posts";
+export { getCurrentUser, loginUser } from './auth';
+
 export {
-  loginUser,
-  getCurrentUser,
-  getUsers,
-  getUserById,
-  updateUser,
-  uploadProfilePicture,
-  deleteProfilePicture,
   createUser,
+  deleteProfilePicture,
+  followUser,
+  getUserById,
   getUserFollowers,
   getUserFollowing,
-  followUser,
+  getUsers,
   unfollowUser,
-} from "./users";
+  updateUser,
+  uploadProfilePicture,
+} from './users';
+
+export {
+  createComment,
+  createPost,
+  deletePost,
+  deletePostImage,
+  getCommentsByPost,
+  getPostById,
+  getPostBySlug,
+  getPosts,
+  getPostsPage,
+  getTags,
+  POSTS_PAGE_SIZE,
+  updatePost,
+  uploadPostImage,
+} from './posts';

@@ -1,23 +1,33 @@
-interface EmptyFilterMessageParams {
-  selectedUser: number | null;
-  textFilter: string;
-  tagFilter: number | null;
+import type { SearchableUser } from '../components/UserSearch';
+
+interface PostFilterState {
+  selectedUser?: SearchableUser | null;
+  textFilter?: string;
+  tagFilter?: string;
 }
 
-export function getEmptyFilterMessage(
-  params: EmptyFilterMessageParams,
-): string {
-  const { selectedUser, textFilter, tagFilter } = params;
-  const filters = [];
+export function getEmptyFilterMessage({
+  selectedUser = null,
+  textFilter = '',
+  tagFilter = '',
+}: PostFilterState): string {
+  const text = textFilter.trim();
 
-  if (textFilter) filters.push(`texto "${textFilter}"`);
-  if (tagFilter) filters.push("etiqueta seleccionada");
-  if (selectedUser) filters.push("usuario seleccionado");
-
-  if (filters.length === 0) {
-    return "No hay publicaciones que coincidan con los filtros.";
+  if (selectedUser && text) {
+    return `No se encontró ningún post del usuario ${selectedUser.nickname} con el texto "${text}".`;
   }
 
-  const filterText = filters.join(", ");
-  return `No hay publicaciones con ${filterText}.`;
+  if (selectedUser) {
+    return `No se encontró ningún post del usuario ${selectedUser.nickname}.`;
+  }
+
+  if (text) {
+    return `No se encontró ningún post con el texto "${text}".`;
+  }
+
+  if (tagFilter) {
+    return `No se encontró ningún post con la etiqueta #${tagFilter}.`;
+  }
+
+  return 'No se encontraron publicaciones con los filtros aplicados.';
 }
