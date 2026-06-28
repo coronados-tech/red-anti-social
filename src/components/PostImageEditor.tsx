@@ -1,6 +1,7 @@
 import { useEffect, useMemo, type ChangeEvent } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import type { PostImage } from '../types';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 interface PostImageEditorProps {
   existingImages: PostImage[];
@@ -54,7 +55,7 @@ export default function PostImageEditor({
         <div className="post-image-editor-grid mb-3">
           {existingImages.map((image) => (
             <div key={image.id} className="post-image-editor-item">
-              <img src={image.url} alt="" className="post-image-editor-thumb" />
+              <img src={resolveMediaUrl(image.url)} alt="" className="post-image-editor-thumb" />
               <Button
                 type="button"
                 variant="outline-danger"

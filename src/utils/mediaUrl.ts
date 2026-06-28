@@ -1,7 +1,10 @@
 import { API_URL } from '../api/client';
 
-/** Reescribe URLs guardadas con localhost hacia la API configurada en producción. */
+/** Usa URLs de API, data URLs o blob tal cual vienen del backend. */
 export function resolveMediaUrl(url?: string | null): string | undefined {
   if (!url) return undefined;
+  if (url.startsWith('data:') || url.includes('blob.vercel-storage.com')) {
+    return url;
+  }
   return url.replace(/^https?:\/\/localhost(?::\d+)?/, API_URL);
 }

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
 import type { PostImage } from '../types';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { sortPostImages } from '../utils/postImages';
 
 interface PostImageCarouselProps {
   images: PostImage[];
 }
 
-export default function PostImageCarousel({ images }: PostImageCarouselProps) {
+export default function PostImageCarousel({ images: rawImages }: PostImageCarouselProps) {
+  const images = sortPostImages(rawImages);
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (images.length === 0) {

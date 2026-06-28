@@ -673,18 +673,25 @@ a:hover {
 .post-card-feed-media {
   border-top: 1px solid var(--tc-border);
   background-color: var(--tc-dark-soft);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .post-card-feed-media-link {
-  display: block;
+  display: flex;
+  justify-content: center;
+  width: 100%;
   text-decoration: none;
 }
 
 .post-card-feed-media img {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  height: auto;
   max-height: min(68vh, 520px);
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .post-card-feed-media img.post-card-img-placeholder {

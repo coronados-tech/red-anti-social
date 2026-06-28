@@ -10,6 +10,7 @@ import type { Post } from '../types';
 import { formatPostDate } from '../utils/formatDate';
 import { postCommentsPath, postPath } from '../utils/postPath';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { getPrimaryPostImageUrl } from '../utils/postImages';
 import { userProfilePath } from '../utils/userProfile';
 
 interface PostCardProps {
@@ -27,7 +28,7 @@ export default function PostCard({
 }: PostCardProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const commentCount = post.comments?.length ?? 0;
-  const firstImage = resolveMediaUrl(post.postImages?.[0]?.url);
+  const firstImage = resolveMediaUrl(getPrimaryPostImageUrl(post.postImages));
   const coverImage = firstImage ?? DEFAULT_POST_IMAGE;
   const authorId = post.user?.id ?? post.user_id;
   const authorName = post.user?.nickname
@@ -101,7 +102,9 @@ export default function PostCard({
             <img
               src={coverImage}
               alt={firstImage ? `Imagen de ${post.titulo}` : 'Anti-Social Net'}
-              className={firstImage ? '' : 'post-card-img-placeholder'}
+              className={firstImage ? 'post-card-feed-img' : 'post-card-img-placeholder'}
+              loading="lazy"
+              decoding="async"
             />
           </Link>
         </div>
