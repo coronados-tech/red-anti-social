@@ -92,7 +92,7 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Pr
     return await fetch(input, { ...init, headers });
   } catch {
     throw new Error(
-      'No se pudo conectar con la API. Verificá que el backend esté corriendo en el puerto 3001.',
+      `No se pudo conectar con la API (${API_URL}). Verificá que el backend esté activo y que CORS permita este sitio.`,
     );
   }
 }
