@@ -600,6 +600,16 @@ a:hover {
   margin-top: 0.5rem;
 }
 
+.home-feed-load-more--sentinel-only {
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: hidden;
+  visibility: hidden;
+}
+
 .home-feed-load-more-hint {
   font-size: 0.85rem;
   opacity: 0.75;
@@ -989,19 +999,47 @@ a:hover {
 .post-card-media {
   border-bottom: 1px solid var(--tc-border);
   background-color: var(--tc-dark-soft);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.post-card-gallery,
+.post-card-gallery {
+  width: 100%;
+}
+
+.post-card-gallery.post-detail-image,
+.post-card-gallery .post-detail-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  background: transparent;
+  border-radius: 0;
+}
+
 .post-card-gallery.post-detail-image {
+  width: 100%;
+  padding: 0.75rem;
+}
+
+.post-card-gallery .post-detail-gallery-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
 }
 
 .post-card-gallery-img {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  height: auto;
   max-height: min(68vh, 520px);
   object-fit: contain;
-  background-color: var(--tc-dark-soft);
 }
 
 .post-card .post-card-gallery-img {
@@ -1009,20 +1047,16 @@ a:hover {
 }
 
 .post-card-feed-media .post-card-gallery {
-  padding: 0.5rem 0.75rem 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
 }
 
 .post-card-gallery .post-detail-gallery-nav {
+  position: static;
+  transform: none;
+  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
-}
-
-.post-card-gallery .post-detail-gallery-nav-prev {
-  left: 0.35rem;
-}
-
-.post-card-gallery .post-detail-gallery-nav-next {
-  right: 0.35rem;
 }
 
 .post-card-gallery .post-detail-gallery-nav-icon {
@@ -1031,6 +1065,7 @@ a:hover {
 }
 
 .post-card-gallery .post-detail-gallery-thumbs {
+  justify-content: center;
   margin-top: 0.65rem;
   gap: 0.5rem;
 }
@@ -1039,10 +1074,6 @@ a:hover {
   width: 52px;
   height: 52px;
   padding: 0.25rem;
-}
-
-.post-card .post-card-gallery .post-detail-gallery-thumbs {
-  padding-inline: 0.35rem;
 }
 
 .post-card-title-link {
@@ -1839,11 +1870,30 @@ code {
 
 @media (max-width: 991.98px) {
   .about-page {
+    flex: none;
     max-height: none;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .about-grid,
+  .about-main,
+  .about-section,
+  .about-pillars,
+  .about-pillars-cards,
+  .about-benefits,
+  .about-benefits-list,
+  .about-benefit-item {
+    flex: none;
+    min-height: auto;
     overflow: visible;
   }
 
   .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-pillars-cards {
     grid-template-columns: 1fr;
   }
 
@@ -1854,13 +1904,48 @@ code {
   .about-benefits-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: visible;
+    gap: 0.65rem;
   }
 }
 
 @media (max-width: 575.98px) {
+  .about-hero-title {
+    font-size: 1.35rem;
+  }
+
+  .about-section {
+    padding: 1rem;
+  }
+
+  .about-section-title {
+    font-size: 1.05rem;
+  }
+
+  .about-section-subtitle {
+    font-size: 0.8125rem;
+  }
+
+  .about-pillar-text,
+  .about-benefit-text,
+  .about-team-aporte {
+    font-size: 0.8125rem;
+  }
+
+  .about-team-name {
+    font-size: 0.875rem;
+  }
+
   .about-team-grid,
   .about-benefits-list {
     grid-template-columns: 1fr;
+  }
+
+  .about-team-card {
+    padding: 0.75rem;
+  }
+
+  .about-team-avatar {
+    width: 52px;
+    height: 52px;
   }
 }

@@ -16,8 +16,10 @@ Frontend de **UnaHur Anti-Social Net** conectado a la API relacional del grupo (
 | ------- | --- |
 | Frontend (producción) | [https://red-anti-social.vercel.app](https://red-anti-social.vercel.app) |
 | Backend (producción) | [https://red-anti-social-backend-relacional.vercel.app](https://red-anti-social-backend-relacional.vercel.app) |
-| Repo backend | [red-anti-social-backend-relacional](https://github.com/coronados-tech/red-anti-social-backend-relacional) |
-| Swagger (backend local) | `http://localhost:3001/swagger` |
+| Swagger (producción) | [https://red-anti-social-backend-relacional.vercel.app/swagger](https://red-anti-social-backend-relacional.vercel.app/swagger) |
+| Repo frontend | [red-anti-social](https://github.com/coronados-tech/red-anti-social) |
+| Repo backend | [red-social-relacional](https://github.com/coronados-tech/red-social-relacional) |
+| Swagger (local) | `http://localhost:3001/swagger` |
 
 ## API utilizada
 

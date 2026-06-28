@@ -38,6 +38,7 @@ export default function Home() {
   } = usePostFilters(posts, { syncTagWithUrl: true });
 
   const hasPosts = !loading && !error && posts.length > 0;
+  const emptyFilteredResults = hasActiveFilters && filteredPosts.length === 0;
 
   return (
     <PageContainer>
@@ -100,15 +101,24 @@ export default function Home() {
             ))}
 
             {!loading && !error && hasMore && (
-              <div ref={sentinelRef} className="home-feed-load-more">
-                {loadingMore ? (
-                  <>
-                    <Spinner animation="border" role="status" />
-                    <span>Cargando más publicaciones...</span>
-                  </>
-                ) : (
-                  <span className="home-feed-load-more-hint">Deslizá para ver más</span>
-                )}
+              <div
+                ref={sentinelRef}
+                className={
+                  emptyFilteredResults
+                    ? 'home-feed-load-more home-feed-load-more--sentinel-only'
+                    : 'home-feed-load-more'
+                }
+                aria-hidden={emptyFilteredResults}
+              >
+                {!emptyFilteredResults &&
+                  (loadingMore ? (
+                    <>
+                      <Spinner animation="border" role="status" />
+                      <span>Cargando más publicaciones...</span>
+                    </>
+                  ) : (
+                    <span className="home-feed-load-more-hint">Deslizá para ver más</span>
+                  ))}
               </div>
             )}
           </div>
