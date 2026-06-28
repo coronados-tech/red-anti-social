@@ -48,7 +48,9 @@ export default function PostImageCarousel({
 
   return (
     <div className={`post-detail-gallery ${galleryClassName ?? ''}`.trim()}>
-      <div className="post-detail-gallery-main">
+      <div
+        className={`post-detail-gallery-main ${isCard ? 'post-card-gallery-stage' : ''}`.trim()}
+      >
         <button
           type="button"
           className="post-detail-gallery-nav post-detail-gallery-nav-prev"
@@ -61,13 +63,28 @@ export default function PostImageCarousel({
           <ChevronLeftIcon className="post-detail-gallery-nav-icon" />
         </button>
 
-        <div className="post-detail-image">
-          <img
-            key={activeImage.id}
-            src={resolveMediaUrl(activeImage.url)}
-            alt={`Imagen ${safeIndex + 1} del post`}
-            className={imageClassName}
-          />
+        <div
+          className={
+            isCard ? 'post-card-gallery-viewport' : 'post-detail-image'
+          }
+        >
+          {isCard ? (
+            <div className="post-detail-image post-card-gallery-image-frame">
+              <img
+                key={activeImage.id}
+                src={resolveMediaUrl(activeImage.url)}
+                alt={`Imagen ${safeIndex + 1} del post`}
+                className={imageClassName}
+              />
+            </div>
+          ) : (
+            <img
+              key={activeImage.id}
+              src={resolveMediaUrl(activeImage.url)}
+              alt={`Imagen ${safeIndex + 1} del post`}
+              className={imageClassName}
+            />
+          )}
         </div>
 
         <button
