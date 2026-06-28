@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
 import type { PostImage } from '../types';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 interface PostImageCarouselProps {
   images: PostImage[];
@@ -17,7 +18,7 @@ export default function PostImageCarousel({ images }: PostImageCarouselProps) {
     return (
       <div className="post-detail-image">
         <img
-          src={images[0].url}
+          src={resolveMediaUrl(images[0].url)}
           alt="Imagen del post"
           className="img-fluid post-detail-img"
         />
@@ -51,7 +52,7 @@ export default function PostImageCarousel({ images }: PostImageCarouselProps) {
         <div className="post-detail-image">
           <img
             key={activeImage.id}
-            src={activeImage.url}
+            src={resolveMediaUrl(activeImage.url)}
             alt={`Imagen ${safeIndex + 1} del post`}
             className="img-fluid post-detail-img"
           />
@@ -78,7 +79,7 @@ export default function PostImageCarousel({ images }: PostImageCarouselProps) {
             className={`post-detail-gallery-thumb ${index === safeIndex ? 'is-active' : ''}`}
             onClick={() => setActiveIndex(index)}
           >
-            <img src={image.url} alt="" />
+            <img src={resolveMediaUrl(image.url)} alt="" />
           </button>
         ))}
       </div>

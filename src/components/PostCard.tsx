@@ -9,6 +9,7 @@ import { DEFAULT_POST_IMAGE } from '../constants/assets';
 import type { Post } from '../types';
 import { formatPostDate } from '../utils/formatDate';
 import { postCommentsPath, postPath } from '../utils/postPath';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 import { userProfilePath } from '../utils/userProfile';
 
 interface PostCardProps {
@@ -26,7 +27,7 @@ export default function PostCard({
 }: PostCardProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const commentCount = post.comments?.length ?? 0;
-  const firstImage = post.postImages?.[0]?.url;
+  const firstImage = resolveMediaUrl(post.postImages?.[0]?.url);
   const coverImage = firstImage ?? DEFAULT_POST_IMAGE;
   const authorId = post.user?.id ?? post.user_id;
   const authorName = post.user?.nickname

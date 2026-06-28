@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { userProfilePath } from '../utils/userProfile';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 
@@ -37,7 +38,7 @@ export default function ProfileAvatar({
   const avatarClass = `profile-avatar profile-avatar-${size} ${className}`.trim();
 
   const avatar = user.profilePicture ? (
-    <img src={user.profilePicture} alt={`Foto de ${label}`} className={avatarClass} />
+    <img src={resolveMediaUrl(user.profilePicture)} alt={`Foto de ${label}`} className={avatarClass} />
   ) : (
     <span className={`${avatarClass} profile-avatar-fallback`} aria-hidden="true">
       {getInitials(user)}
