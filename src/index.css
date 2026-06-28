@@ -138,6 +138,46 @@ a:hover {
   overflow: visible;
 }
 
+@media (max-width: 767.98px) {
+  .navbar-main .container {
+    align-items: flex-start;
+  }
+
+  .navbar-main .navbar-collapse {
+    width: 100%;
+    margin-top: 0.65rem;
+    padding: 0.85rem;
+    border: 1px solid var(--tc-border);
+    border-radius: 0.75rem;
+    background-color: var(--tc-card);
+  }
+
+  .navbar-main .navbar-collapse.collapsing {
+    overflow: hidden;
+    transition: height 0.25s ease;
+  }
+
+  .navbar-user-search {
+    max-width: none;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .navbar-main .nav {
+    width: 100%;
+  }
+
+  .navbar-main .nav-link {
+    padding-block: 0.45rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .navbar-main .navbar-collapse {
+    overflow: visible;
+  }
+}
+
 .navbar-main .nav-link {
   color: var(--tc-muted) !important;
   font-weight: 500;

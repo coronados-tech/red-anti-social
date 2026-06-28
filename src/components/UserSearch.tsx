@@ -18,6 +18,7 @@ interface UserSearchProps {
   selectedUser?: SearchableUser | null;
   onSelectUser?: (user: SearchableUser) => void;
   onClearSelection?: () => void;
+  onNavigate?: () => void;
   placeholder?: string;
   className?: string;
   controlId?: string;
@@ -53,6 +54,7 @@ export default function UserSearch({
   selectedUser = null,
   onSelectUser,
   onClearSelection,
+  onNavigate,
   placeholder = 'Buscar usuarios...',
   className = '',
   controlId,
@@ -138,6 +140,7 @@ export default function UserSearch({
       return;
     }
 
+    onNavigate?.();
     navigate(userProfilePath(user.nickname));
   }
 
@@ -265,6 +268,7 @@ export default function UserSearch({
                   setDebouncedQuery('');
                   setResults([]);
                   setOpen(false);
+                  onNavigate?.();
                 }}
               >
                 <ProfileAvatar user={person} size="sm" />
