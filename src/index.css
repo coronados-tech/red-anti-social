@@ -16,6 +16,8 @@
   --tc-navbar-bg: rgba(10, 14, 23, 0.95);
   --navbar-height: 4.5rem;
   --footer-height: 11.5rem;
+  --post-media-max-height: min(52vh, 400px);
+  --post-media-grid-max-height: min(38vh, 320px);
   --tc-hero-end: #0d1b2a;
   --tc-accent-hover: #33e0be;
   --tc-btn-text: #0a0e17;
@@ -702,10 +704,10 @@ a:hover {
 
 .post-card-feed-media img {
   display: block;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: min(68vh, 520px);
+  max-height: var(--post-media-max-height);
   object-fit: contain;
 }
 
@@ -885,14 +887,14 @@ a:hover {
 }
 
 .post-card-img {
-  max-height: 220px;
-  object-fit: cover;
+  max-height: var(--post-media-grid-max-height);
+  object-fit: contain;
   width: 100%;
 }
 
 .post-detail-img {
   display: block;
-  max-height: min(70vh, 520px);
+  max-height: var(--post-media-max-height);
   object-fit: contain;
   width: 100%;
   background-color: var(--tc-dark-soft);
@@ -1033,12 +1035,12 @@ a:hover {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: min(68vh, 520px);
+  min-height: var(--post-media-max-height);
   padding: 0 2.75rem;
 }
 
 .post-card .post-card-gallery-viewport {
-  min-height: 220px;
+  min-height: var(--post-media-grid-max-height);
 }
 
 .post-card-gallery-image-frame {
@@ -1053,15 +1055,15 @@ a:hover {
 
 .post-card-gallery-img {
   display: block;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: min(68vh, 520px);
+  max-height: var(--post-media-max-height);
   object-fit: contain;
 }
 
 .post-card .post-card-gallery-img {
-  max-height: 220px;
+  max-height: var(--post-media-grid-max-height);
 }
 
 .post-card-feed-media .post-card-gallery {
