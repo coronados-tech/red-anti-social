@@ -1013,6 +1013,64 @@ a:hover {
   border: 2px solid var(--tc-border);
 }
 
+.profile-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.profile-avatar-wrap-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.profile-avatar-wrap-md {
+  width: 40px;
+  height: 40px;
+}
+
+.profile-avatar-wrap-lg {
+  width: 96px;
+  height: 96px;
+}
+
+.profile-avatar-wrap .profile-avatar-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.profile-avatar-wrap .profile-avatar-img {
+  position: relative;
+  z-index: 1;
+  animation: profile-avatar-fade-in 0.2s ease;
+}
+
+@keyframes profile-avatar-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.profile-avatar-fallback-loading {
+  animation: profile-avatar-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes profile-avatar-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.72;
+  }
+}
+
 .profile-avatar-sm {
   width: 28px;
   height: 28px;

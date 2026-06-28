@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { userProfilePath } from '../utils/userProfile';
 import { resolveMediaUrl } from '../utils/mediaUrl';
@@ -28,6 +29,40 @@ function getInitials(user: ProfileAvatarUser): string {
   return user.nickname?.charAt(0)?.toUpperCase() ?? '?';
 }
 
+function usePreloadedImage(url?: string): string | null {
+  const [readyUrl, setReadyUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      setReadyUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    const img = new Image();
+
+    img.onload = () => {
+      if (!cancelled) {
+        setReadyUrl(url);
+      }
+    };
+    img.onerror = () => {
+      if (!cancelled) {
+        setReadyUrl(null);
+      }
+    };
+    img.src = url;
+
+    return () => {
+      cancelled = true;
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [url]);
+
+  return readyUrl;
+}
+
 export default function ProfileAvatar({
   user,
   size = 'md',
@@ -35,10 +70,29 @@ export default function ProfileAvatar({
   className = '',
 }: ProfileAvatarProps) {
   const label = user.nickname ? `@${user.nickname}` : 'Usuario';
-  const avatarClass = `profile-avatar profile-avatar-${size} ${className}`.trim();
+  const pictureUrl = resolveMediaUrl(user.profilePicture);
+  const readyUrl = usePreloadedImage(pictureUrl);
+  const isLoading = Boolean(pictureUrl && !readyUrl);
 
-  const avatar = user.profilePicture ? (
-    <img src={resolveMediaUrl(user.profilePicture)} alt={`Foto de ${label}`} className={avatarClass} />
+  const wrapClass = `profile-avatar-wrap profile-avatar-wrap-${size} ${className}`.trim();
+  const avatarClass = `profile-avatar profile-avatar-${size}`;
+
+  const avatar = pictureUrl ? (
+    <span className={wrapClass}>
+      <span
+        className={`${avatarClass} profile-avatar-fallback${isLoading ? ' profile-avatar-fallback-loading' : ''}`}
+        aria-hidden={Boolean(readyUrl)}
+      >
+        {getInitials(user)}
+      </span>
+      {readyUrl && (
+        <img
+          src={readyUrl}
+          alt={`Foto de ${label}`}
+          className={`${avatarClass} profile-avatar-img`}
+        />
+      )}
+    </span>
   ) : (
     <span className={`${avatarClass} profile-avatar-fallback`} aria-hidden="true">
       {getInitials(user)}
