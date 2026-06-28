@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import ProfileAvatar from './ProfileAvatar';
+import PostImageCarousel from './PostImageCarousel';
 import ReportPostModal from './ReportPostModal';
 import ReportPostButton from './ReportPostButton';
 import TagBadge from './TagBadge';
@@ -9,8 +10,6 @@ import { DEFAULT_POST_IMAGE } from '../constants/assets';
 import type { Post } from '../types';
 import { formatPostDate } from '../utils/formatDate';
 import { postCommentsPath, postPath } from '../utils/postPath';
-import { resolveMediaUrl } from '../utils/mediaUrl';
-import { getPrimaryPostImageUrl } from '../utils/postImages';
 import { userProfilePath } from '../utils/userProfile';
 
 interface PostCardProps {
@@ -28,8 +27,7 @@ export default function PostCard({
 }: PostCardProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const commentCount = post.comments?.length ?? 0;
-  const firstImage = resolveMediaUrl(getPrimaryPostImageUrl(post.postImages));
-  const coverImage = firstImage ?? DEFAULT_POST_IMAGE;
+  const hasImages = (post.postImages?.length ?? 0) > 0;
   const authorId = post.user?.id ?? post.user_id;
   const authorName = post.user?.nickname
     ? post.user.nickname
@@ -98,15 +96,23 @@ export default function PostCard({
         </Card.Body>
 
         <div className="post-card-feed-media">
-          <Link to={postPath(post.slug)} className="post-card-feed-media-link" aria-label={`Ver publicación: ${post.titulo}`}>
-            <img
-              src={coverImage}
-              alt={firstImage ? `Imagen de ${post.titulo}` : 'Anti-Social Net'}
-              className={firstImage ? 'post-card-feed-img' : 'post-card-img-placeholder'}
-              loading="lazy"
-              decoding="async"
-            />
-          </Link>
+          {hasImages ? (
+            <PostImageCarousel images={post.postImages ?? []} variant="card" />
+          ) : (
+            <Link
+              to={postPath(post.slug)}
+              className="post-card-feed-media-link"
+              aria-label={`Ver publicación: ${post.titulo}`}
+            >
+              <img
+                src={DEFAULT_POST_IMAGE}
+                alt="Anti-Social Net"
+                className="post-card-img-placeholder"
+                loading="lazy"
+                decoding="async"
+              />
+            </Link>
+          )}
         </div>
 
         <div className="post-card-feed-actions">
@@ -130,12 +136,17 @@ export default function PostCard({
 
   return (
     <Card className="post-card h-100">
-      <Card.Img
-        variant="top"
-        src={coverImage}
-        alt={firstImage ? 'Imagen del post' : 'Anti-Social Net'}
-        className={`post-card-img ${firstImage ? '' : 'post-card-img-placeholder'}`.trim()}
-      />
+      <div className="post-card-media">
+        {hasImages ? (
+          <PostImageCarousel images={post.postImages ?? []} variant="card" />
+        ) : (
+          <img
+            src={DEFAULT_POST_IMAGE}
+            alt="Anti-Social Net"
+            className="post-card-img post-card-img-placeholder"
+          />
+        )}
+      </div>
       <Card.Body className="d-flex flex-column">
         <Card.Title className="post-card-title h6">
           <Link to={postPath(post.slug)} className="post-card-title-link">

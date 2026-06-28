@@ -986,6 +986,65 @@ a:hover {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc-accent) 35%, transparent);
 }
 
+.post-card-media {
+  border-bottom: 1px solid var(--tc-border);
+  background-color: var(--tc-dark-soft);
+}
+
+.post-card-gallery,
+.post-card-gallery.post-detail-image {
+  width: 100%;
+}
+
+.post-card-gallery-img {
+  display: block;
+  width: 100%;
+  max-height: min(68vh, 520px);
+  object-fit: contain;
+  background-color: var(--tc-dark-soft);
+}
+
+.post-card .post-card-gallery-img {
+  max-height: 220px;
+}
+
+.post-card-feed-media .post-card-gallery {
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.post-card-gallery .post-detail-gallery-nav {
+  width: 2rem;
+  height: 2rem;
+}
+
+.post-card-gallery .post-detail-gallery-nav-prev {
+  left: 0.35rem;
+}
+
+.post-card-gallery .post-detail-gallery-nav-next {
+  right: 0.35rem;
+}
+
+.post-card-gallery .post-detail-gallery-nav-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.post-card-gallery .post-detail-gallery-thumbs {
+  margin-top: 0.65rem;
+  gap: 0.5rem;
+}
+
+.post-card-gallery .post-detail-gallery-thumb {
+  width: 52px;
+  height: 52px;
+  padding: 0.25rem;
+}
+
+.post-card .post-card-gallery .post-detail-gallery-thumbs {
+  padding-inline: 0.35rem;
+}
+
 .post-card-title-link {
   color: var(--tc-text);
   text-decoration: none;

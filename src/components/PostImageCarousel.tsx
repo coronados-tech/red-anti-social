@@ -6,11 +6,18 @@ import { sortPostImages } from '../utils/postImages';
 
 interface PostImageCarouselProps {
   images: PostImage[];
+  variant?: 'detail' | 'card';
 }
 
-export default function PostImageCarousel({ images: rawImages }: PostImageCarouselProps) {
+export default function PostImageCarousel({
+  images: rawImages,
+  variant = 'detail',
+}: PostImageCarouselProps) {
   const images = sortPostImages(rawImages);
   const [activeIndex, setActiveIndex] = useState(0);
+  const isCard = variant === 'card';
+  const galleryClassName = isCard ? 'post-card-gallery' : undefined;
+  const imageClassName = `img-fluid ${isCard ? 'post-card-gallery-img' : 'post-detail-img'}`;
 
   if (images.length === 0) {
     return null;
@@ -18,11 +25,11 @@ export default function PostImageCarousel({ images: rawImages }: PostImageCarous
 
   if (images.length === 1) {
     return (
-      <div className="post-detail-image">
+      <div className={`post-detail-image ${galleryClassName ?? ''}`.trim()}>
         <img
           src={resolveMediaUrl(images[0].url)}
           alt="Imagen del post"
-          className="img-fluid post-detail-img"
+          className={imageClassName}
         />
       </div>
     );
@@ -40,12 +47,15 @@ export default function PostImageCarousel({ images: rawImages }: PostImageCarous
   };
 
   return (
-    <div className="post-detail-gallery">
+    <div className={`post-detail-gallery ${galleryClassName ?? ''}`.trim()}>
       <div className="post-detail-gallery-main">
         <button
           type="button"
           className="post-detail-gallery-nav post-detail-gallery-nav-prev"
-          onClick={goPrev}
+          onClick={(event) => {
+            event.stopPropagation();
+            goPrev();
+          }}
           aria-label="Imagen anterior"
         >
           <ChevronLeftIcon className="post-detail-gallery-nav-icon" />
@@ -56,14 +66,17 @@ export default function PostImageCarousel({ images: rawImages }: PostImageCarous
             key={activeImage.id}
             src={resolveMediaUrl(activeImage.url)}
             alt={`Imagen ${safeIndex + 1} del post`}
-            className="img-fluid post-detail-img"
+            className={imageClassName}
           />
         </div>
 
         <button
           type="button"
           className="post-detail-gallery-nav post-detail-gallery-nav-next"
-          onClick={goNext}
+          onClick={(event) => {
+            event.stopPropagation();
+            goNext();
+          }}
           aria-label="Imagen siguiente"
         >
           <ChevronRightIcon className="post-detail-gallery-nav-icon" />
@@ -79,7 +92,10 @@ export default function PostImageCarousel({ images: rawImages }: PostImageCarous
             aria-selected={index === safeIndex}
             aria-label={`Ver imagen ${index + 1}`}
             className={`post-detail-gallery-thumb ${index === safeIndex ? 'is-active' : ''}`}
-            onClick={() => setActiveIndex(index)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setActiveIndex(index);
+            }}
           >
             <img src={resolveMediaUrl(image.url)} alt="" />
           </button>
