@@ -13,7 +13,7 @@ export default function AppNavbar() {
     isActive ? 'nav-link active' : 'nav-link';
 
   return (
-    <Navbar expand="md" fixed="top" className="navbar-coronados" variant="dark">
+    <Navbar expand="md" fixed="top" className="navbar-main" variant="dark">
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-mono">
           Anti-Social <span className="text-accent">Net</span>
