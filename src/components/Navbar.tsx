@@ -43,7 +43,7 @@ export default function AppNavbar() {
             </NavLink>
           </Nav>
           <UserSearch onNavigate={closeMenu} />
-          <Nav className="align-items-md-center gap-2">
+          <Nav className="navbar-actions-nav align-items-md-center gap-2">
             {user && (
               <Button
                 as={NavLink}
