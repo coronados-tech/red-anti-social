@@ -1,5 +1,24 @@
+import { useEffect, useState } from 'react';
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
+import { ChevronRightIcon } from './Icons';
 import UserSearch, { type SearchableUser } from './UserSearch';
+
+const MOBILE_FILTER_QUERY = '(max-width: 991.98px)';
+
+function useIsMobileFilter() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(MOBILE_FILTER_QUERY).matches : false,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_FILTER_QUERY);
+    const handleChange = () => setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return isMobile;
+}
 
 interface PostFilterPanelProps {
   title?: string;
@@ -20,6 +39,7 @@ interface PostFilterPanelProps {
   onSelectUser?: (user: SearchableUser) => void;
   onClearUser?: () => void;
   layout?: 'default' | 'sidebar';
+  collapsibleOnMobile?: boolean;
 }
 
 export default function PostFilterPanel({
@@ -41,13 +61,46 @@ export default function PostFilterPanel({
   onSelectUser,
   onClearUser,
   layout = 'default',
+  collapsibleOnMobile = false,
 }: PostFilterPanelProps) {
   const isSidebar = layout === 'sidebar';
+  const isMobile = useIsMobileFilter();
+  const [expanded, setExpanded] = useState(false);
+  const isCollapsible = collapsibleOnMobile && isMobile;
+  const isContentVisible = !isCollapsible || expanded;
 
   return (
-    <Card className={`form-card ${isSidebar ? 'home-feed-filters-card mb-0' : 'mb-4'}`}>
-      <Card.Body>
-        <h3 className="h6 mb-3">{title}</h3>
+    <Card
+      className={`form-card post-filter-panel ${isSidebar ? 'home-feed-filters-card mb-0' : 'mb-4'} ${isCollapsible && !expanded ? 'post-filter-panel--collapsed' : ''}`}
+    >
+      <Card.Body className="post-filter-panel-body">
+        {isCollapsible && (
+          <button
+            type="button"
+            className="post-filter-panel-toggle"
+            onClick={() => setExpanded((prev) => !prev)}
+            aria-expanded={expanded}
+            aria-controls={`${idPrefix}-filter-content`}
+          >
+            <span className="post-filter-panel-toggle-label">
+              <span className="post-filter-panel-toggle-title">{title}</span>
+              {canClear && (
+                <Badge bg="primary" className="post-filter-panel-active-badge">
+                  Filtrando
+                </Badge>
+              )}
+            </span>
+            <ChevronRightIcon
+              className={`post-filter-panel-toggle-icon ${expanded ? 'post-filter-panel-toggle-icon--open' : ''}`}
+            />
+          </button>
+        )}
+
+        <div
+          id={`${idPrefix}-filter-content`}
+          className={`post-filter-panel-content ${isContentVisible ? '' : 'post-filter-panel-content--hidden'}`}
+        >
+          {!isCollapsible && <h3 className="h6 mb-3">{title}</h3>}
         <Row className={`g-3 home-post-filters ${isSidebar ? 'home-post-filters-sidebar flex-column' : ''}`}>
           <Col xs={12} md={isSidebar ? 12 : showUserFilter ? 6 : 12}>
             <Form.Group controlId={`${idPrefix}-filter-text`}>
@@ -135,6 +188,7 @@ export default function PostFilterPanel({
             Limpiar filtros
           </button>
         )}
+        </div>
       </Card.Body>
     </Card>
   );

@@ -5,6 +5,7 @@ import ProfileAvatar from './ProfileAvatar';
 import PostImageCarousel from './PostImageCarousel';
 import ReportPostModal from './ReportPostModal';
 import ReportPostButton from './ReportPostButton';
+import PostLikeButton from './PostLikeButton';
 import TagBadge from './TagBadge';
 import { DEFAULT_POST_IMAGE } from '../constants/assets';
 import type { Post } from '../types';
@@ -116,11 +117,16 @@ export default function PostCard({
         </div>
 
         <div className="post-card-feed-actions">
-          <Link to={postPath(post.slug)} className="post-card-feed-action">
-            Ver publicación
-          </Link>
+          <PostLikeButton
+            postId={post.id}
+            likeCount={post.likeCount}
+            likedByViewer={post.likedByViewer}
+          />
           <Link to={postCommentsPath(post.slug)} className="post-card-feed-action">
             {commentsLabel}
+          </Link>
+          <Link to={postPath(post.slug)} className="post-card-feed-action">
+            Ver publicación
           </Link>
         </div>
 
@@ -193,9 +199,17 @@ export default function PostCard({
         )}
 
         <div className="post-card-footer mt-auto d-flex align-items-center justify-content-between gap-2">
-          <Button as={Link} to={postPath(post.slug)} variant="outline-primary" size="sm">
-            Ver más
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            <PostLikeButton
+              postId={post.id}
+              likeCount={post.likeCount}
+              likedByViewer={post.likedByViewer}
+              variant="inline"
+            />
+            <Button as={Link} to={postPath(post.slug)} variant="outline-primary" size="sm">
+              Ver más
+            </Button>
+          </div>
           <div className="d-flex align-items-center gap-2 ms-auto">
             <ReportPostButton onClick={() => setShowReportModal(true)} />
             <Link to={postCommentsPath(post.slug)} className="post-card-comments-link">

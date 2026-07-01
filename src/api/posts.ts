@@ -5,6 +5,7 @@ import type {
   PaginatedPosts,
   Post,
   PostImage,
+  PostLikeResponse,
   Tag,
   UpdatePostPayload,
 } from '../types';
@@ -127,6 +128,18 @@ export async function uploadPostImage(postId: number, file: File): Promise<PostI
 
 export async function deletePostImage(postId: number, imageId: number): Promise<void> {
   await requestEmpty(`${API_URL}/posts/${postId}/images/${imageId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function likePost(postId: number): Promise<PostLikeResponse> {
+  return requestJson<PostLikeResponse>(`${API_URL}/posts/${postId}/like`, {
+    method: 'POST',
+  });
+}
+
+export async function unlikePost(postId: number): Promise<PostLikeResponse> {
+  return requestJson<PostLikeResponse>(`${API_URL}/posts/${postId}/like`, {
     method: 'DELETE',
   });
 }

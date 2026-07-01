@@ -8,7 +8,7 @@ Red social desarrollada como **Trabajo Práctico 2** de Construcción de Interfa
 
 ## Descripción
 
-Frontend de **UnaHur Anti-Social Net** conectado a la API relacional del grupo (Estrategia de Persistencia). Permite registrarse, iniciar sesión con JWT, ver un feed filtrable con scroll infinito, explorar perfiles públicos, seguir usuarios, comentar, editar publicaciones, reportar contenido y gestionar el perfil propio (datos, privacidad y foto).
+Frontend de **UnaHur Anti-Social Net** conectado a la API relacional del grupo (Estrategia de Persistencia). Permite registrarse, iniciar sesión con JWT, ver un feed filtrable con scroll infinito, dar **me gusta** a publicaciones, explorar perfiles públicos con el mismo formato de cards que el inicio, seguir usuarios, comentar, editar publicaciones, reportar contenido y gestionar el perfil propio (datos, privacidad y foto).
 
 ## Enlaces
 
@@ -59,14 +59,14 @@ Detalle de variables del backend: ver `.env.Example` en el repo relacional.
 
 ## Funcionalidades
 
-| Vista          | Ruta                            | Descripción                                                       |
-| -------------- | ------------------------------- | ----------------------------------------------------------------- |
-| Home           | `/`                             | Feed paginado con filtros (texto, usuario, fechas, tags)          |
-| Login          | `/login`                        | Login con email o nickname + contraseña (`POST /auth/login`)      |
-| Registro       | `/registro`                     | Alta de usuario (`POST /users`)                                   |
-| Detalle        | `/post/:slug`                   | Post completo, comentarios, edición, borrado (dueño) y reporte    |
-| Perfil propio  | `/perfil`                       | Editar datos, privacidad y foto (protegida)                       |
-| Perfil público | `/usuario/:nickname`            | Posts de un usuario, seguir/dejar de seguir                       |
+| Vista          | Ruta                            | Descripción                                                                 |
+| -------------- | ------------------------------- | --------------------------------------------------------------------------- |
+| Home           | `/`                             | Feed paginado con filtros (texto, usuario, fechas, tags) y me gusta         |
+| Login          | `/login`                        | Login con email o nickname + contraseña (`POST /auth/login`)                |
+| Registro       | `/registro`                     | Alta de usuario (`POST /users`)                                             |
+| Detalle        | `/post/:slug`                   | Post completo, me gusta, comentarios, edición, borrado (dueño) y reporte    |
+| Perfil propio  | `/perfil`                       | Editar datos, privacidad y foto (protegida)                                 |
+| Perfil público | `/usuario/:nickname`            | Posts en formato feed, filtros y seguir/dejar de seguir                     |
 | Seguidores     | `/usuario/:nickname/seguidores` | Lista de seguidores                                               |
 | Siguiendo      | `/usuario/:nickname/siguiendo`  | Lista de seguidos (dejar de seguir desde acá)                    |
 | Nuevo post     | `/nuevo-post`                   | Crear post + subir imágenes (protegida)                           |
@@ -87,6 +87,15 @@ Detalle de variables del backend: ver `.env.Example` en el repo relacional.
 - Home carga posts paginados con `GET /posts?page=&limit=`
 - Los filtros se aplican en el cliente sobre los posts ya cargados
 - Si hay filtros activos y no hay coincidencias, se invita a seguir scrolleando
+- En **desktop**, el buscador queda fijo en una barra lateral
+- En **mobile**, el buscador aparece **arriba del feed**, **minimizado por defecto**; se expande al tocarlo y muestra el badge **Filtrando** si hay criterios activos
+
+### Me gusta en publicaciones
+
+- Cada post incluye `likeCount` y `likedByViewer` (si hay sesión)
+- Dar o quitar like: `POST /posts/:id/like` y `DELETE /posts/:id/like` (requieren JWT)
+- Botón disponible en las cards del feed, en el perfil público y en el detalle del post
+- Si no hay sesión, al tocar se redirige al login
 
 ### Crear post con imágenes
 
@@ -131,7 +140,7 @@ src/
 │   ├── client.ts              # fetch, JWT, errores HTTP (singleton de token)
 │   ├── auth.ts                # login, sesión
 │   ├── users.ts               # usuarios, seguidores, foto de perfil
-│   ├── posts.ts               # posts, tags, comentarios, imágenes
+│   ├── posts.ts               # posts, tags, comentarios, imágenes, likes
 │   └── index.ts               # Facade: re-export público (importar desde '../api')
 ├── assets/profile.images/     # Fotos del equipo (página Nosotros)
 ├── constants/
@@ -145,8 +154,9 @@ src/
 │   ├── useInfinitePosts.ts    # Scroll infinito del feed (Home)
 │   └── usePostFilters.ts      # Estado compartido de filtros del feed
 ├── components/                # UI reutilizable
-│   ├── PostFilterPanel.tsx    # Panel de filtros (Home y perfil público)
-│   ├── PostCard.tsx           # Tarjeta de post (layouts feed/profile)
+│   ├── PostFilterPanel.tsx    # Panel de filtros colapsable en mobile
+│   ├── PostCard.tsx           # Tarjeta de post (layout feed o grilla)
+│   ├── PostLikeButton.tsx     # Botón de me gusta
 │   ├── PostImageCarousel.tsx  # Carrusel de imágenes en posts
 │   ├── ReportPostModal.tsx    # Modal para reportar publicaciones
 │   ├── UserSearch.tsx         # Búsqueda de usuarios en filtros

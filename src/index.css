@@ -653,6 +653,18 @@ a:hover {
   border-radius: 12px;
 }
 
+.post-filter-panel-toggle {
+  display: none;
+}
+
+.post-filter-panel-content--hidden {
+  display: none;
+}
+
+.post-filter-panel--collapsed .post-filter-panel-body {
+  padding: 0.65rem 0.85rem;
+}
+
 .home-post-filters-sidebar > [class*='col-'] {
   width: 100%;
   max-width: 100%;
@@ -809,10 +821,59 @@ a:hover {
 
 .post-card-feed-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   padding: 0.5rem 0.75rem 0.75rem;
   border-top: 1px solid var(--tc-border);
+}
+
+.post-like-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tc-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.post-like-btn:hover:not(:disabled),
+.post-like-btn:focus-visible:not(:disabled) {
+  background-color: var(--tc-dark-soft);
+  color: var(--tc-accent);
+}
+
+.post-like-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.post-like-btn--active {
+  color: #e0245e;
+}
+
+.post-like-btn--active:hover:not(:disabled),
+.post-like-btn--active:focus-visible:not(:disabled) {
+  color: #c81e54;
+}
+
+.post-like-btn-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.post-like-btn-inline {
+  min-height: auto;
+  padding: 0.35rem 0.65rem;
 }
 
 .post-report-btn {
@@ -975,12 +1036,70 @@ a:hover {
 
   .home-feed-sidebar {
     position: static;
-    order: 2;
+    order: 0;
+    margin-bottom: 0.75rem;
   }
 
   .home-feed-main {
     order: 1;
     min-width: 0;
+  }
+
+  .post-filter-panel-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--tc-text);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .post-filter-panel-toggle-label {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .post-filter-panel-toggle-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .post-filter-panel-active-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  .post-filter-panel-toggle-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    color: var(--tc-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .post-filter-panel-toggle-icon--open {
+    transform: rotate(90deg);
+  }
+
+  .post-filter-panel-content:not(.post-filter-panel-content--hidden) {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--tc-border);
+  }
+
+  .post-filter-panel--collapsed .post-filter-panel-content {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
   }
 }
 

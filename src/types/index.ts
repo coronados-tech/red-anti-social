@@ -40,6 +40,8 @@ export interface Post {
   tags?: Tag[];
   postImages?: PostImage[];
   comments?: Comment[];
+  likeCount?: number;
+  likedByViewer?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -94,6 +96,13 @@ export interface UpdatePostPayload {
   titulo?: string;
   description?: string;
   tags?: string[];
+}
+
+export interface PostLikeResponse {
+  message: string;
+  post_id: number;
+  likeCount: number;
+  likedByViewer: boolean;
 }
 
 export type UserPublic = Pick<User, 'id' | 'nickname' | 'name' | 'lastName' | 'profilePicture' | 'isProfilePublic'>;

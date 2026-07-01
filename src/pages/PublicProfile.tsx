@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Spinner } from 'react-bootstrap';
 import PageContainer from '../components/PageContainer';
 import {
   followUser,
@@ -266,6 +266,7 @@ export default function PublicProfile() {
         <PostFilterPanel
           title="Filtrar publicaciones"
           idPrefix="profile"
+          collapsibleOnMobile
           allTags={allTags}
           tagFilter={tagFilter}
           onTagFilterChange={setTagFilter}
@@ -285,17 +286,17 @@ export default function PublicProfile() {
       {filteredPosts.length === 0 ? (
         <Alert variant="info">No hay publicaciones con esos filtros.</Alert>
       ) : (
-        <Row xs={1} md={2} lg={3} className="g-4">
+        <div className="home-feed-list">
           {filteredPosts.map((post) => (
-            <Col key={post.id}>
-              <PostCard
-                post={post}
-                tagFilterBasePath={userProfilePath(nickname)}
-                activeTagFilter={tagFilter}
-              />
-            </Col>
+            <PostCard
+              key={post.id}
+              post={post}
+              tagFilterBasePath={userProfilePath(nickname)}
+              activeTagFilter={tagFilter}
+              layout="feed"
+            />
           ))}
-        </Row>
+        </div>
       )}
     </PageContainer>
   );

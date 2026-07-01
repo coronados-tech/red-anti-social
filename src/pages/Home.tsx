@@ -49,6 +49,7 @@ export default function Home() {
               idPrefix="home"
               title="Buscador de publicaciones"
               layout="sidebar"
+              collapsibleOnMobile
               allTags={allTags}
               tagFilter={tagFilter}
               onTagFilterChange={setTagFilter}

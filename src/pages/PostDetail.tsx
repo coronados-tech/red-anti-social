@@ -20,6 +20,7 @@ import BackLink from '../components/BackLink';
 import PostImageEditor from '../components/PostImageEditor';
 import ReportPostModal from '../components/ReportPostModal';
 import ReportPostButton from '../components/ReportPostButton';
+import PostLikeButton from '../components/PostLikeButton';
 import { useAuth } from '../context/AuthContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { DEFAULT_POST_IMAGE } from '../constants/assets';
@@ -453,12 +454,22 @@ export default function PostDetail() {
               )}
 
               {post.tags && post.tags.length > 0 && (
-                <div>
+                <div className="mb-3">
                   {post.tags.map((tag) => (
                     <TagBadge key={tag.id} name={tag.name} activeTagFilter={activeTagFilter} />
                   ))}
                 </div>
               )}
+
+              <PostLikeButton
+                postId={post.id}
+                likeCount={post.likeCount}
+                likedByViewer={post.likedByViewer}
+                variant="inline"
+                onUpdate={({ likeCount, likedByViewer }) =>
+                  setPost((prev) => (prev ? { ...prev, likeCount, likedByViewer } : prev))
+                }
+              />
             </>
           )}
         </Card.Body>

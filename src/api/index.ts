@@ -29,4 +29,6 @@ export {
   POSTS_PAGE_SIZE,
   updatePost,
   uploadPostImage,
+  likePost,
+  unlikePost,
 } from './posts';
