@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" fill="none" role="img" aria-label="Anti-Social Net">
+  <rect width="320" height="64" rx="12" fill="#0a0e17"/>
+  <g transform="translate(12 8)">
+    <rect width="48" height="48" rx="12" fill="#141b2d"/>
+    <circle cx="18" cy="18" r="3.5" fill="#00d4aa"/>
+    <circle cx="30" cy="18" r="3.5" fill="#00d4aa"/>
+    <circle cx="24" cy="30" r="3.5" fill="#00d4aa"/>
+    <circle cx="36.5" cy="30.5" r="3.5" fill="#00d4aa"/>
+    <path d="M21.5 18h5M22.8 27.6l4.2-2.4" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+    <path d="M33.2 27.2l1.8 1.2" stroke="#8b95a8" stroke-width="2" stroke-linecap="round" stroke-dasharray="2.5 2.5"/>
+  </g>
+  <text x="76" y="40" fill="#e8edf5" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700">Anti-Social </text>
+  <text x="226" y="40" fill="#00d4aa" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700">Net</text>
+</svg>

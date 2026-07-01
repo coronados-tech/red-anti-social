@@ -178,6 +178,12 @@ src/
 ├── types/index.ts
 └── data/integrantes.ts
 public/
+├── favicon.ico                # Favicon clásico (16/32/48/256 px)
+├── favicon.svg                # Icono del sitio (pestaña del navegador, moderno)
+├── icon.svg                   # Icono cuadrado para navbar y UI
+├── logo.svg                   # Logo horizontal con wordmark
+├── icon-antisocial-net.png    # Icono PNG (512px, PWA / apple-touch)
+├── logo-antisocial-net.png    # Logo PNG horizontal (README, marketing)
 └── post-placeholder.svg       # Imagen por defecto para posts sin foto
 ```
 

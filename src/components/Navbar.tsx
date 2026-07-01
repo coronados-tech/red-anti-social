@@ -26,8 +26,11 @@ export default function AppNavbar() {
       onToggle={setExpanded}
     >
       <Container>
-        <Navbar.Brand as={Link} to="/" className="brand-mono" onClick={closeMenu}>
-          Anti-Social <span className="text-accent">Net</span>
+        <Navbar.Brand as={Link} to="/" className="brand-mono navbar-brand-wrap" onClick={closeMenu}>
+          <img src="/icon.svg" alt="" className="navbar-brand-icon" width={32} height={32} />
+          <span className="navbar-brand-text">
+            Anti-Social <span className="text-accent">Net</span>
+          </span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">

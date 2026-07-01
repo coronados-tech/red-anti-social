@@ -263,6 +263,22 @@ a:hover {
   font-weight: 700;
 }
 
+.navbar-brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.navbar-brand-icon {
+  flex-shrink: 0;
+  display: block;
+  border-radius: 8px;
+}
+
+.navbar-brand-text {
+  line-height: 1.1;
+}
+
 .navbar-main .navbar-text {
   color: var(--tc-muted) !important;
 }
