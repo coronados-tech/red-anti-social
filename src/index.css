@@ -275,6 +275,18 @@ a:hover {
   border-radius: 8px;
 }
 
+.navbar-brand-icon--light {
+  display: none;
+}
+
+[data-theme='light'] .navbar-brand-icon--dark {
+  display: none;
+}
+
+[data-theme='light'] .navbar-brand-icon--light {
+  display: block;
+}
+
 .navbar-brand-text {
   line-height: 1.1;
 }
@@ -1556,6 +1568,39 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.profile-posts-grid {
+  --post-media-grid-max-height: min(22dvh, 180px);
+}
+
+.profile-posts-grid .post-card .card-body {
+  padding: 0.75rem;
+}
+
+.profile-posts-grid .post-card-title {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+.profile-posts-grid .post-card-description {
+  -webkit-line-clamp: 2;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem !important;
+}
+
+.profile-posts-grid .post-card-meta {
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem !important;
+}
+
+.profile-posts-grid .post-card-footer .btn {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.profile-posts-grid .post-card-comments-link {
+  font-size: 0.75rem;
 }
 
 .follow-stat-link {

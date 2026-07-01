@@ -30,6 +30,11 @@ const getInitialTheme = (): Theme => {
 
 const applyTheme = (theme: Theme) => {
   document.documentElement.setAttribute('data-theme', theme);
+
+  const favicon = document.querySelector<HTMLLinkElement>('#theme-favicon');
+  if (favicon) {
+    favicon.href = theme === 'light' ? '/favicon-light.svg' : '/favicon.svg';
+  }
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

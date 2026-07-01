@@ -27,7 +27,20 @@ export default function AppNavbar() {
     >
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-mono navbar-brand-wrap" onClick={closeMenu}>
-          <img src="/icon.svg" alt="" className="navbar-brand-icon" width={32} height={32} />
+          <img
+            src="/icon.svg"
+            alt=""
+            className="navbar-brand-icon navbar-brand-icon--dark"
+            width={32}
+            height={32}
+          />
+          <img
+            src="/icon-light.svg"
+            alt=""
+            className="navbar-brand-icon navbar-brand-icon--light"
+            width={32}
+            height={32}
+          />
           <span className="navbar-brand-text">
             Anti-Social <span className="text-accent">Net</span>
           </span>

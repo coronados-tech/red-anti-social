@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Anti-Social Net">
+  <rect width="64" height="64" rx="16" fill="#ffffff" stroke="#d4dce6" stroke-width="1.5"/>
+  <circle cx="22" cy="24" r="4.5" fill="#00a88a"/>
+  <circle cx="42" cy="24" r="4.5" fill="#00a88a"/>
+  <circle cx="32" cy="40" r="4.5" fill="#00a88a"/>
+  <circle cx="49" cy="41" r="4.5" fill="#00a88a"/>
+  <path d="M26.5 24h11M29.5 37.2l8.4-4.8" stroke="#00a88a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M44.4 36.6l3.6 2.4" stroke="#5c6b7f" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 4"/>
+</svg>

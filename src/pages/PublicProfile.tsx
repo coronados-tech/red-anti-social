@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Spinner } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import PageContainer from '../components/PageContainer';
 import {
   followUser,
@@ -286,17 +286,17 @@ export default function PublicProfile() {
       {filteredPosts.length === 0 ? (
         <Alert variant="info">No hay publicaciones con esos filtros.</Alert>
       ) : (
-        <div className="home-feed-list">
+        <Row xs={1} sm={2} lg={3} className="g-3 profile-posts-grid">
           {filteredPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              tagFilterBasePath={userProfilePath(nickname)}
-              activeTagFilter={tagFilter}
-              layout="feed"
-            />
+            <Col key={post.id}>
+              <PostCard
+                post={post}
+                tagFilterBasePath={userProfilePath(nickname)}
+                activeTagFilter={tagFilter}
+              />
+            </Col>
           ))}
-        </div>
+        </Row>
       )}
     </PageContainer>
   );
