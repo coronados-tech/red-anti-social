@@ -18,6 +18,7 @@ interface PostCardProps {
   tagFilterBasePath?: string;
   activeTagFilter?: string;
   layout?: 'grid' | 'feed';
+  compact?: boolean;
 }
 
 export default function PostCard({
@@ -25,6 +26,7 @@ export default function PostCard({
   tagFilterBasePath = '/',
   activeTagFilter,
   layout = 'grid',
+  compact = false,
 }: PostCardProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const commentCount = post.comments?.length ?? 0;
@@ -36,21 +38,27 @@ export default function PostCard({
       ? `Usuario #${authorId}`
       : 'Usuario desconocido';
   const authorLabel = post.user?.nickname ? `@${post.user.nickname}` : authorName;
-  const commentsLabel =
-    commentCount === 0
+  const commentsLabel = compact
+    ? commentCount === 0
+      ? 'Comentar'
+      : commentCount === 1
+        ? '1 com.'
+        : `${commentCount} com.`
+    : commentCount === 0
       ? 'Sé el primero en comentar'
       : commentCount === 1
         ? '1 comentario'
         : `${commentCount} comentarios`;
+  const viewLabel = compact ? 'Ver' : 'Ver publicación';
 
   if (layout === 'feed') {
     return (
-      <Card className="post-card post-card-feed">
+      <Card className={`post-card post-card-feed${compact ? ' post-card-feed--compact' : ''}`}>
         <Card.Body className="post-card-feed-body">
           <header className="post-card-feed-header">
             <ProfileAvatar
               user={post.user ?? { id: authorId }}
-              size="md"
+              size={compact ? 'sm' : 'md'}
               linkToProfile={Boolean(post.user?.nickname)}
             />
             <div className="post-card-feed-author">
@@ -121,12 +129,13 @@ export default function PostCard({
             postId={post.id}
             likeCount={post.likeCount}
             likedByViewer={post.likedByViewer}
+            compact={compact}
           />
           <Link to={postCommentsPath(post.slug)} className="post-card-feed-action">
             {commentsLabel}
           </Link>
           <Link to={postPath(post.slug)} className="post-card-feed-action">
-            Ver publicación
+            {viewLabel}
           </Link>
         </div>
 

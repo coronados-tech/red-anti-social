@@ -9,10 +9,15 @@ interface PostLikeButtonProps {
   likeCount?: number;
   likedByViewer?: boolean;
   variant?: 'feed' | 'inline';
+  compact?: boolean;
   onUpdate?: (state: { likeCount: number; likedByViewer: boolean }) => void;
 }
 
-function formatLikeLabel(count: number): string {
+function formatLikeLabel(count: number, compact = false): string {
+  if (compact) {
+    if (count === 0) return 'Me gusta';
+    return String(count);
+  }
   if (count === 0) return 'Me gusta';
   if (count === 1) return '1 me gusta';
   return `${count} me gusta`;
@@ -23,6 +28,7 @@ export default function PostLikeButton({
   likeCount = 0,
   likedByViewer = false,
   variant = 'feed',
+  compact = false,
   onUpdate,
 }: PostLikeButtonProps) {
   const { user } = useAuth();
@@ -53,7 +59,7 @@ export default function PostLikeButton({
     }
   }
 
-  const label = formatLikeLabel(count);
+  const label = formatLikeLabel(count, compact);
   const className = [
     variant === 'feed' ? 'post-card-feed-action' : 'post-like-btn-inline',
     'post-like-btn',

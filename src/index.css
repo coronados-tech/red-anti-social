@@ -1571,36 +1571,122 @@ a:hover {
 }
 
 .profile-posts-grid {
-  --post-media-grid-max-height: min(22dvh, 180px);
+  --post-media-max-height: min(18dvh, 140px);
+  --post-media-grid-max-height: min(18dvh, 140px);
 }
 
-.profile-posts-grid .post-card .card-body {
+.profile-posts-grid .post-card-feed {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-posts-grid .post-card-feed-body {
+  padding: 0.65rem 0.75rem 0.5rem;
+  flex: 0 0 auto;
+}
+
+.profile-posts-grid .post-card-feed-header {
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-posts-grid .post-card-feed-author-name {
+  font-size: 0.8125rem;
+}
+
+.profile-posts-grid .post-card-feed-meta {
+  font-size: 0.6875rem;
+}
+
+.profile-posts-grid .post-card-feed-title {
+  font-size: 0.8125rem;
+  margin-bottom: 0.35rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.profile-posts-grid .post-card-feed-description {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.35rem !important;
+}
+
+.profile-posts-grid .post-card-feed-tags {
+  gap: 0.25rem;
+}
+
+.profile-posts-grid .post-card-feed-tags .badge {
+  font-size: 0.65rem;
+  padding: 0.2em 0.45em;
+}
+
+.profile-posts-grid .post-card-feed-media {
+  flex: 1 1 auto;
+}
+
+.profile-posts-grid .post-card-feed-media .post-card-gallery {
+  padding: 0.35rem 0.25rem;
+}
+
+.profile-posts-grid .post-card-feed-media img,
+.profile-posts-grid .post-card-feed-media .post-card-gallery-img {
+  max-height: min(18dvh, 140px);
+}
+
+.profile-posts-grid .post-card-feed-media img.post-card-img-placeholder {
+  max-height: 120px;
   padding: 0.75rem;
 }
 
-.profile-posts-grid .post-card-title {
-  font-size: 0.95rem;
-  margin-bottom: 0.35rem;
+.profile-posts-grid .post-card-gallery .post-detail-gallery-thumbs,
+.profile-posts-grid .post-card-gallery > p.text-muted {
+  display: none;
 }
 
-.profile-posts-grid .post-card-description {
-  -webkit-line-clamp: 2;
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem !important;
+.profile-posts-grid .post-card-gallery-stage .post-detail-gallery-nav {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
-.profile-posts-grid .post-card-meta {
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem !important;
+.profile-posts-grid .post-card-gallery-stage .post-detail-gallery-nav-icon {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
-.profile-posts-grid .post-card-footer .btn {
-  font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
+.profile-posts-grid .post-card-feed-actions {
+  padding: 0.35rem 0.5rem 0.5rem;
+  gap: 0.25rem;
+  flex: 0 0 auto;
 }
 
-.profile-posts-grid .post-card-comments-link {
-  font-size: 0.75rem;
+.profile-posts-grid .post-card-feed-action,
+.profile-posts-grid .post-like-btn {
+  min-height: 1.75rem;
+  padding: 0.25rem 0.35rem;
+  font-size: 0.6875rem;
+  gap: 0.2rem;
+}
+
+.profile-posts-grid .post-like-btn-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.profile-posts-grid .post-report-btn {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.profile-posts-grid .post-report-btn-icon {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .follow-stat-link {

@@ -293,6 +293,8 @@ export default function PublicProfile() {
                 post={post}
                 tagFilterBasePath={userProfilePath(nickname)}
                 activeTagFilter={tagFilter}
+                layout="feed"
+                compact
               />
             </Col>
           ))}
